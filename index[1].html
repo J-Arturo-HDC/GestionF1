@@ -1,0 +1,2851 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema F1 - Scuderia Alpha Racing</title>
+<style>
+    /* ========== RESET Y ESTILOS BASE ========== */
+    * { 
+        margin: 0; 
+        padding: 0; 
+        box-sizing: border-box; 
+    }
+    
+    /* ========== BODY Y FONDO RESPONSIVE ========== */
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #0f0f0f;
+        min-height: 100vh;
+        padding: 20px;
+        color: #e0e0e0;
+        position: relative;
+    }
+    
+    .container::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('f1logo.jpg');
+        background-size: cover;
+        background-position: center;
+        z-index: -1;
+        opacity: 0.3;
+    }
+    
+    /* ========== CONTENEDOR PRINCIPAL RESPONSIVE ========== */
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: rgba(26, 26, 26, 0.95);
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid #333;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* ========== HEADER RESPONSIVE ========== */
+    .header {
+        background: linear-gradient(135deg, #000000 0%, #ff0000 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+        position: relative;
+    }
+    
+    .header h1 { 
+        font-size: 2.5em; 
+        margin-bottom: 10px; 
+    }
+    
+    /* ========== MENÚ RESPONSIVE ========== */
+    .menu { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px; 
+        padding: 30px; 
+        background: #111;
+    }
+    
+    .menu-item {
+        background: #1a1a1a; 
+        padding: 25px; 
+        border-radius: 8px; 
+        cursor: pointer;
+        border-left: 4px solid #ff0000; 
+        transition: all 0.3s ease;
+    }
+    
+    .menu-item:hover {
+        transform: translateY(-3px); 
+        background: #222;
+        box-shadow: 0 5px 15px rgba(255,0,0,0.2);
+    }
+    
+    /* ========== CONTENIDO RESPONSIVE ========== */
+    .content { 
+        padding: 30px; 
+        display: none; 
+        background: #000; 
+        min-height: 500px; 
+    }
+    
+    .content.active { 
+        display: block; 
+    }
+    
+    /* ========== BOTONES RESPONSIVE ========== */
+    .back-btn { 
+        margin-bottom: 20px; 
+        padding: 12px 20px; 
+        background: #ff0000; 
+        color: white; 
+        border: none; 
+        border-radius: 5px; 
+        cursor: pointer;
+        font-size: 14px;
+        width: 100%;
+    }
+    
+    .btn {
+        padding: 8px 16px; 
+        border: none; 
+        border-radius: 4px; 
+        cursor: pointer;
+        font-size: 14px; 
+        margin: 2px; 
+        transition: all 0.3s ease;
+    }
+    
+    .btn-edit { background: #ffc107; color: black; }
+    .btn-delete { background: #dc3545; color: white; }
+    .btn-success { background: #28a745; color: white; }
+    .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+    
+    /* ========== TABLAS RESPONSIVE ========== */
+    .table-container {
+        overflow-x: auto;
+        margin-top: 20px;
+        border: 1px solid #333;
+        border-radius: 8px;
+    }
+    
+    table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        background: #000; 
+        min-width: 600px; /* Ancho mínimo para tablas */
+    }
+    
+    th, td { 
+        padding: 12px; 
+        text-align: left; 
+        border-bottom: 1px solid #333; 
+    }
+    
+    th { 
+        background: #ff0000; 
+        color: white; 
+        position: sticky; 
+        top: 0; 
+    }
+    
+    tr:hover { background: #1a1a1a; }
+    tr:nth-child(even) { background: #111; }
+    
+    /* ========== FORMULARIOS RESPONSIVE ========== */
+    .form-container {
+        background: #111; 
+        padding: 25px; 
+        border-radius: 8px; 
+        margin-bottom: 25px; 
+        border: 1px solid #333;
+    }
+    
+    .form-row {
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px; 
+        margin-bottom: 15px;
+    }
+    
+    .form-group { 
+        margin-bottom: 15px; 
+    }
+    
+    .form-group label { 
+        display: block; 
+        margin-bottom: 8px; 
+        font-weight: 600; 
+        color: #ffffff; 
+    }
+    
+    .form-group input, 
+    .form-group select, 
+    .form-group textarea {
+        width: 100%; 
+        padding: 12px; 
+        background: #000; 
+        border: 1px solid #333; 
+        border-radius: 5px; 
+        font-size: 16px; 
+        color: white;
+    }
+    
+    .form-group input:focus, 
+    .form-group select:focus {
+        border-color: #ff0000; 
+        outline: none;
+    }
+    
+    /* ========== TÍTULOS Y ALERTAS ========== */
+    .section-title {
+        color: #ff0000; 
+        margin-bottom: 20px; 
+        padding-bottom: 10px;
+        border-bottom: 2px solid #333;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .alert {
+        padding: 12px; 
+        margin: 15px 0; 
+        border-radius: 5px; 
+        display: none;
+    }
+    
+    .alert-success { background: #155724; color: #d4edda; border: 1px solid #c3e6cb; }
+    .alert-error { background: #721c24; color: #f8d7da; border: 1px solid #f5c6cb; }
+    
+    .actions-cell { 
+        white-space: nowrap; 
+    }
+    
+    .record-count {
+        background: #333;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        color: #ccc;
+    }
+    
+    /* ========== BARRA DE BÚSQUEDA RESPONSIVE ========== */
+    .search-bar {
+        background: #111;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    
+    .search-bar input,
+    .search-bar select {
+        padding: 10px;
+        background: #000;
+        border: 1px solid #333;
+        border-radius: 5px;
+        color: white;
+        flex: 1;
+        min-width: 150px;
+    }
+    
+    /* ========== MEDIA QUERIES PARA RESPONSIVE ========== */
+    
+    /* TABLETS (768px a 1024px) */
+    @media screen and (max-width: 1024px) {
+        body {
+            padding: 15px;
+        }
+        
+        .container {
+            border-radius: 15px;
+        }
+        
+        .header {
+            padding: 25px;
+        }
+        
+        .header h1 {
+            font-size: 2.2em;
+        }
+        
+        .menu {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+        
+        .menu-item {
+            padding: 20px;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .table-container {
+            margin-top: 15px;
+        }
+        
+        th, td {
+            padding: 10px;
+            font-size: 14px;
+        }
+    }
+    
+    /* MÓVILES GRANDES (576px a 768px) */
+    @media screen and (max-width: 768px) {
+        body {
+            padding: 10px;
+        }
+        
+        .header {
+            padding: 20px;
+        }
+        
+        .header h1 {
+            font-size: 1.8em;
+        }
+        
+        .menu {
+            grid-template-columns: 1fr;
+            gap: 10px;
+            padding: 15px;
+        }
+        
+        .menu-item {
+            padding: 18px;
+        }
+        
+        .content {
+            padding: 15px;
+            min-height: 400px;
+        }
+        
+        .section-title {
+            font-size: 1.4em;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .back-btn {
+            padding: 10px 15px;
+            font-size: 13px;
+        }
+        
+        .btn {
+            padding: 6px 12px;
+            font-size: 13px;
+            margin: 1px;
+        }
+        
+        .form-container {
+            padding: 20px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px;
+            font-size: 15px;
+        }
+        
+        .search-bar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+        
+        .search-bar input,
+        .search-bar select {
+            width: 100%;
+        }
+    }
+    
+    /* MÓVILES PEQUEÑOS (hasta 576px) */
+    @media screen and (max-width: 576px) {
+        body {
+            padding: 5px;
+        }
+        
+        .header {
+            padding: 15px;
+        }
+        
+        .header h1 {
+            font-size: 1.5em;
+        }
+        
+        .container {
+            border-radius: 10px;
+        }
+        
+        .menu {
+            padding: 10px;
+        }
+        
+        .menu-item {
+            padding: 15px;
+        }
+        
+        .menu-item h3 {
+            font-size: 1.1em;
+        }
+        
+        .menu-item p {
+            font-size: 0.9em;
+        }
+        
+        .content {
+            padding: 10px;
+            min-height: 300px;
+        }
+        
+        .section-title {
+            font-size: 1.2em;
+        }
+        
+        th, td {
+            padding: 8px;
+            font-size: 13px;
+        }
+        
+        .btn {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        
+        .form-container {
+            padding: 15px;
+        }
+        
+        .form-group label {
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 8px;
+            font-size: 14px;
+        }
+    }
+    
+    /* MÓVILES MUY PEQUEÑOS (hasta 400px) */
+    @media screen and (max-width: 400px) {
+        .header h1 {
+            font-size: 1.3em;
+        }
+        
+        .header p {
+            font-size: 0.9em;
+        }
+        
+        .menu-item {
+            padding: 12px;
+        }
+        
+        .back-btn {
+            font-size: 12px;
+            padding: 8px 12px;
+        }
+        
+        .btn {
+            padding: 4px 8px;
+            font-size: 11px;
+        }
+        
+        th, td {
+            padding: 6px;
+            font-size: 12px;
+        }
+        
+        .actions-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        
+        .actions-cell .btn {
+            width: 100%;
+            margin: 1px 0;
+        }
+    }
+    
+    /* ORIENTACIÓN LANDSCAPE EN MÓVILES */
+    @media screen and (max-height: 500px) and (orientation: landscape) {
+        body {
+            padding: 10px;
+        }
+        
+        .container {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .menu {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+        
+        .content {
+            min-height: auto;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+    }
+    
+    /* PANTALLAS MUY GRANDES (más de 1920px) */
+    @media screen and (min-width: 1920px) {
+        .container {
+            max-width: 1800px;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+        }
+        
+        .menu {
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        }
+        
+        .menu-item {
+            padding: 30px;
+        }
+        
+        .form-row {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            font-size: 18px;
+            padding: 15px;
+        }
+    }
+    
+    /* IMPRESIÓN */
+    @media print {
+        .container::before,
+        .menu,
+        .back-btn,
+        .btn,
+        .search-bar,
+        .alert {
+            display: none !important;
+        }
+        
+        .container {
+            box-shadow: none;
+            border: 1px solid #ccc;
+        }
+        
+        .content {
+            display: block !important;
+            background: white;
+            color: black;
+        }
+        
+        table {
+            background: white;
+            color: black;
+        }
+        
+        th {
+            background: #ddd !important;
+            color: black !important;
+        }
+    }
+</style>
+</head>
+    
+    <script>
+// ✅ VERIFICAR AUTENTICACIÓN AL CARGAR LA PÁGINA
+if (localStorage.getItem('userAuthenticated') !== 'true') {
+    window.location.href = 'login.html';
+}
+
+// ✅ PROTEGER NAVEGACIÓN - Evitar que vuelvan atrás sin autenticación
+window.addEventListener('pageshow', function(event) {
+    if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        // Si viene de cache o navegación atrás, verificar autenticación
+        if (localStorage.getItem('userAuthenticated') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    }
+});
+</script>
+    
+<body>
+    
+
+<div class="container">
+    <div class="header">
+        <h1>Scuderia Alpha Racing</h1>
+        <p>Sistema de Gestión Completo del Equipo F1</p>
+    </div>
+    
+    <!-- MENÚ PRINCIPAL COMPLETO -->
+    <div class="menu">
+        <!-- Equipo y Personal -->
+        <div class="menu-item" onclick="showSection('equipo')">
+            <h3>🏎️ Información del Equipo</h3>
+            <p>Configuración general del equipo</p>
+        </div>
+        <div class="menu-item" onclick="showSection('pilotos')">
+            <h3>👤 Gestión de Pilotos</h3>
+            <p>Pilotos, contratos y licencias</p>
+        </div>
+        
+        <!-- Flota de Autos y Mantenimiento -->
+        <div class="menu-item" onclick="showSection('autos')">
+            <h3>🚗 Flota de Autos</h3>
+            <p>Vehículos y especificaciones</p>
+        </div>
+        <div class="menu-item" onclick="showSection('mantenimiento')">
+            <h3>🔧 Mantenimiento</h3>
+            <p>Control de mantenimiento y reparaciones</p>
+        </div>
+        
+        <!-- Competición -->
+        <div class="menu-item" onclick="showSection('circuitos')">
+            <h3>📍 Circuitos</h3>
+            <p>Circuitos y configuraciones</p>
+        </div>
+        <div class="menu-item" onclick="showSection('carreras')">
+            <h3>🏁 Carreras</h3>
+            <p>Calendario y eventos</p>
+        </div>
+        <div class="menu-item" onclick="showSection('participaciones')">
+            <h3>📊 Participaciones</h3>
+            <p>Asignaciones de pilotos y autos</p>
+        </div>
+        <div class="menu-item" onclick="showSection('resultados')">
+            <h3>🏆 Resultados</h3>
+            <p>Resultados y clasificaciones</p>
+        </div>
+    </div>
+    
+    <!-- SECCIÓN EQUIPO -->
+    <div id="equipo" class="content">
+        <button class="back-btn" onclick="showSection('menu')">← Volver al Menú</button>
+        <h2 class="section-title">INFORMACIÓN DEL EQUIPO</h2>
+        <div class="alert" id="alertEquipo"></div>
+        
+        <div class="form-container">
+            <h3 style="color: #ff0000;">Configurar Información del Equipo</h3>
+            <form id="formEquipo" onsubmit="guardarEquipo(event)">
+                <input type="hidden" id="id_equipo" name="id_equipo">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nombre_equipo">Nombre del Equipo *</label>
+                        <input type="text" id="nombre_equipo" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pais_equipo">País *</label>
+                        <input type="text" id="pais_equipo" name="pais" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fundacion_equipo">Año de Fundación *</label>
+                        <input type="number" id="fundacion_equipo" name="fundacion" min="1950" max="2024" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="presupuesto_equipo">Presupuesto Anual (USD) *</label>
+                        <input type="number" id="presupuesto_equipo" name="presupuesto_anual" min="0" step="0.01" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="director_tecnico">Director Técnico</label>
+                        <input type="text" id="director_tecnico" name="director_tecnico">
+                    </div>
+                    <div class="form-group">
+                        <label for="sede_principal">Sede Principal</label>
+                        <input type="text" id="sede_principal" name="sede_principal">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success">Guardar Configuración</button>
+            </form>
+        </div>
+        
+        <div class="table-container">
+            <div id="tablaEquipo"></div>
+        </div>
+    </div>
+    
+    <!-- SECCIÓN PILOTOS (más campos según BD) -->
+    <div id="pilotos" class="content">
+        <button class="back-btn" onclick="showSection('menu')">← Volver al Menú</button>
+        <h2 class="section-title">GESTIÓN DE PILOTOS <span class="record-count" id="countPilotos">0 registros</span></h2>
+        <div class="alert" id="alertPilotos"></div>
+        
+        <div class="search-bar">
+            <input type="text" id="searchPiloto" placeholder="Buscar piloto..." onkeyup="filtrarPilotos()">
+            <select id="filterTipoPiloto" onchange="filtrarPilotos()">
+                <option value="">Todos los tipos</option>
+                <option value="Titular">Titular</option>
+                <option value="Reserva">Reserva</option>
+                <option value="Desarrollo">Desarrollo</option>
+            </select>
+        </div>
+        
+        <div class="form-container">
+            <h3 style="color: #ff0000;" id="tituloFormPiloto">Agregar Nuevo Piloto</h3>
+            <form id="formPiloto" onsubmit="guardarPiloto(event)">
+                <input type="hidden" id="id_piloto" name="id_piloto">
+                <input type="hidden" id="id_equipo_piloto" name="id_equipo" value="1">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nombre_piloto">Nombre Completo *</label>
+                        <input type="text" id="nombre_piloto" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nacionalidad_piloto">Nacionalidad *</label>
+                        <input type="text" id="nacionalidad_piloto" name="nacionalidad" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fecha_nacimiento_piloto">Fecha de Nacimiento *</label>
+                        <input type="date" id="fecha_nacimiento_piloto" name="fecha_nacimiento" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="licencia_fia">Licencia FIA *</label>
+                        <input type="text" id="licencia_fia" name="licencia_fia" placeholder="FIA-001" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tipo_piloto">Tipo de Piloto *</label>
+                        <select id="tipo_piloto" name="tipo_piloto" required>
+                            <option value="">Seleccione</option>
+                            <option value="Titular">Piloto Titular</option>
+                            <option value="Reserva">Piloto de Reserva</option>
+                            <option value="Desarrollo">Piloto de Desarrollo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="numero_competition">Número de Competencia</label>
+                        <input type="number" id="numero_competition" name="numero_competition" min="1" max="99">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="experiencia_anos">Años de Experiencia</label>
+                        <input type="number" id="experiencia_anos" name="experiencia_anos" min="0" max="50">
+                    </div>
+                    <div class="form-group">
+                        <label for="sueldo_base">Sueldo Base (USD)</label>
+                        <input type="number" id="sueldo_base" name="sueldo_base" min="0" step="0.01">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fecha_contrato_inicio">Fecha Inicio Contrato</label>
+                        <input type="date" id="fecha_contrato_inicio" name="fecha_contrato_inicio">
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha_contrato_fin">Fecha Fin Contrato</label>
+                        <input type="date" id="fecha_contrato_fin" name="fecha_contrato_fin">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-success" id="btnGuardarPiloto">Guardar Piloto</button>
+                <button type="button" class="btn btn-secondary" onclick="cancelarEdicionPiloto()" style="display:none;" id="btnCancelarPiloto">Cancelar</button>
+            </form>
+        </div>
+        
+        <div class="table-container">
+            <div id="tablaPilotos"></div>
+        </div>
+    </div>
+    
+    <!-- SECCIÓN AUTOS -->
+    <div id="autos" class="content">
+        <button class="back-btn" onclick="showSection('menu')">← Volver al Menú</button>
+        <h2 class="section-title">FLOTA DE AUTOS <span class="record-count" id="countAutos">0 registros</span></h2>
+        <div class="alert" id="alertAutos"></div>
+        
+        <div class="search-bar">
+            <input type="text" id="searchAuto" placeholder="Buscar por chasis o modelo..." onkeyup="filtrarAutos()">
+            <select id="filterTipoAuto" onchange="filtrarAutos()">
+                <option value="">Todos los tipos</option>
+                <option value="Competencia">Competencia</option>
+                <option value="Pruebas">Pruebas</option>
+                <option value="Reserva">Reserva</option>
+            </select>
+        </div>
+        
+        <div class="form-container">
+            <h3 style="color: #ff0000;" id="tituloFormAuto">Agregar Nuevo Auto</h3>
+            <form id="formAuto" onsubmit="guardarAuto(event)">
+                <input type="hidden" id="chasis_auto_original" name="chasis_auto_original">
+                <input type="hidden" id="id_equipo_auto" name="id_equipo" value="1">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="chasis_auto">Chasis *</label>
+                        <input type="text" id="chasis_auto" name="chasis_auto" placeholder="CH-001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="modelo">Modelo *</label>
+                        <input type="text" id="modelo" name="modelo" placeholder="Alpha-RS25" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="motor">Motor *</label>
+                        <input type="text" id="motor" name="motor" placeholder="V6 Turbo Híbrido" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ano">Año *</label>
+                        <input type="number" id="ano" name="ano" min="2000" max="2024" value="2024" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tipo_auto">Tipo de Auto *</label>
+                        <select id="tipo_auto" name="tipo_auto" required>
+                            <option value="">Seleccione</option>
+                            <option value="Competencia">Competencia</option>
+                            <option value="Pruebas">Pruebas</option>
+                            <option value="Reserva">Reserva</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="numero_competition_auto">Número de Competencia</label>
+                        <input type="number" id="numero_competition_auto" name="numero_competition" min="1" max="99">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="estado_actual">Estado Actual</label>
+                        <select id="estado_actual" name="estado_actual">
+                            <option value="Disponible">Disponible</option>
+                            <option value="Mantenimiento">Mantenimiento</option>
+                            <option value="Reparación">Reparación</option>
+                            <option value="Retirado">Retirado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha_fabricacion">Fecha de Fabricación</label>
+                        <input type="date" id="fecha_fabricacion" name="fecha_fabricacion">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="especificaciones_tecnicas">Especificaciones Técnicas</label>
+                    <textarea id="especificaciones_tecnicas" name="especificaciones_tecnicas" rows="3"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-success" id="btnGuardarAuto">Guardar Auto</button>
+                <button type="button" class="btn btn-secondary" onclick="cancelarEdicionAuto()" style="display:none;" id="btnCancelarAuto">Cancelar</button>
+            </form>
+        </div>
+        
+        <div class="table-container">
+            <div id="tablaAutos"></div>
+        </div>
+    </div>
+    
+    <!-- SECCIÓN MANTENIMIENTO -->
+    <div id="mantenimiento" class="content">
+        <button class="back-btn" onclick="showSection('menu')">← Volver al Menú</button>
+        <h2 class="section-title">MANTENIMIENTO DE AUTOS <span class="record-count" id="countMantenimiento">0 registros</span></h2>
+        <div class="alert" id="alertMantenimiento"></div>
+        
+        <div class="search-bar">
+            <input type="text" id="searchMantenimiento" placeholder="Buscar por chasis o técnico..." onkeyup="filtrarMantenimiento()">
+            <select id="filterTipoMantenimiento" onchange="filtrarMantenimiento()">
+                <option value="">Todos los tipos</option>
+                <option value="Preventivo">Preventivo</option>
+                <option value="Correctivo">Correctivo</option>
+                <option value="Programado">Programado</option>
+                <option value="Emergencia">Emergencia</option>
+            </select>
+        </div>
+        
+        <div class="form-container">
+            <h3 style="color: #ff0000;" id="tituloFormMantenimiento">Agregar Nuevo Mantenimiento</h3>
+            <form id="formMantenimiento" onsubmit="guardarMantenimiento(event)">
+                <input type="hidden" id="id_mantenimiento" name="id_mantenimiento">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="chasis_auto_mantenimiento">Chasis del Auto *</label>
+                        <select id="chasis_auto_mantenimiento" name="chasis_auto" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha_mantenimiento">Fecha de Mantenimiento *</label>
+                        <input type="date" id="fecha_mantenimiento" name="fecha_mantenimiento" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tipo_mantenimiento">Tipo de Mantenimiento *</label>
+                        <select id="tipo_mantenimiento" name="tipo" required>
+                            <option value="">Seleccione</option>
+                            <option value="Preventivo">Preventivo</option>
+                            <option value="Correctivo">Correctivo</option>
+                            <option value="Programado">Programado</option>
+                            <option value="Emergencia">Emergencia</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tecnico_responsable">Técnico Responsable *</label>
+                        <input type="text" id="tecnico_responsable" name="tecnico_responsable" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="duracion_horas">Duración (horas)</label>
+                        <input type="number" id="duracion_horas" name="duracion_horas" min="0" step="0.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="costo_estimado">Costo Estimado (USD)</label>
+                        <input type="number" id="costo_estimado" name="costo_estimado" min="0" step="0.01">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="descripcion_mantenimiento">Descripción *</label>
+                    <textarea id="descripcion_mantenimiento" name="descripcion" rows="3" required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-success" id="btnGuardarMantenimiento">Guardar Mantenimiento</button>
+                <button type="button" class="btn btn-secondary" onclick="cancelarEdicionMantenimiento()" style="display:none;" id="btnCancelarMantenimiento">Cancelar</button>
+            </form>
+        </div>
+        
+        <div class="table-container">
+            <div id="tablaMantenimiento"></div>
+        </div>
+    </div>
+    
+    <!-- SECCIÓN CIRCUITOS -->
+    <div id="circuitos" class="content">
+        <button class="back-btn" onclick="showSection('menu')">← Volver al Menú</button>
+        <h2 class="section-title">CIRCUITOS <span class="record-count" id="countCircuitos">0 registros</span></h2>
+        <div class="alert" id="alertCircuitos"></div>
+        
+        <div class="search-bar">
+            <input type="text" id="searchCircuito" placeholder="Buscar circuito..." onkeyup="filtrarCircuitos()">
+            <select id="filterPaisCircuito" onchange="filtrarCircuitos()">
+                <option value="">Todos los países</option>
+            </select>
+        </div>
+        
+        <div class="form-container">
+            <h3 style="color: #ff0000;" id="tituloFormCircuito">Agregar Nuevo Circuito</h3>
+            <form id="formCircuito" onsubmit="guardarCircuito(event)">
+                <input type="hidden" id="id_circuito" name="id_circuito">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nombre_circuito">Nombre del Circuito *</label>
+                        <input type="text" id="nombre_circuito" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pais_circuito">País *</label>
+                        <input type="text" id="pais_circuito" name="pais" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="longitud_km">Longitud (km) *</label>
+                        <input type="number" id="longitud_km" name="longitud_km" step="0.001" min="1" max="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipo_circuito">Tipo de Circuito</label>
+                        <select id="tipo_circuito" name="tipo_circuito">
+                            <option value="Permanente">Permanente</option>
+                            <option value="Circuito Callejero">Circuito Callejero</option>
+                            <option value="Mixto">Mixto</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="numero_curvas">Número de Curvas *</label>
+                        <input type="number" id="numero_curvas" name="numero_curvas" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="capacidad_espectadores">Capacidad de Espectadores</label>
+                        <input type="number" id="capacidad_espectadores" name="capacidad_espectadores" min="0">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="record_vuelta">Récord de Vuelta (HH:MM:SS)</label>
+                        <input type="text" id="record_vuelta" name="record_vuelta" placeholder="01:21:46">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-success" id="btnGuardarCircuito">Guardar Circuito</button>
+                <button type="button" class="btn btn-secondary" onclick="cancelarEdicionCircuito()" style="display:none;" id="btnCancelarCircuito">Cancelar</button>
+            </form>
+        </div>
+        
+        <div class="table-container">
+            <div id="tablaCircuitos"></div>
+        </div>
+    </div>
+    
+    <!-- SECCIÓN CARRERAS -->
+    <div id="carreras" class="content">
+        <button class="back-btn" onclick="showSection('menu')">← Volver al Menú</button>
+        <h2 class="section-title">CARRERAS <span class="record-count" id="countCarreras">0 registros</span></h2>
+        <div class="alert" id="alertCarreras"></div>
+        
+        <div class="search-bar">
+            <input type="text" id="searchCarrera" placeholder="Buscar carrera..." onkeyup="filtrarCarreras()">
+            <select id="filterTemporadaCarrera" onchange="filtrarCarreras()">
+                <option value="">Todas las temporadas</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+            </select>
+        </div>
+        
+        <div class="form-container">
+            <h3 style="color: #ff0000;" id="tituloFormCarrera">Agregar Nueva Carrera</h3>
+            <form id="formCarrera" onsubmit="guardarCarrera(event)">
+                <input type="hidden" id="id_carrera" name="id_carrera">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nombre_carrera">Nombre de la Carrera *</label>
+                        <input type="text" id="nombre_carrera" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_circuito_carrera">Circuito *</label>
+                        <select id="id_circuito_carrera" name="id_circuito" required></select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fecha_carrera">Fecha de la Carrera *</label>
+                        <input type="date" id="fecha_carrera" name="fecha" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="temporada_carrera">Temporada *</label>
+                        <input type="number" id="temporada_carrera" name="temporada" min="2020" max="2030" value="2024" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vueltas_planificadas">Vueltas Planificadas</label>
+                        <input type="number" id="vueltas_planificadas" name="vueltas_planificadas" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="condiciones_climaticas">Condiciones Climáticas</label>
+                        <select id="condiciones_climaticas" name="condiciones_climaticas">
+                            <option value="Despejado">Despejado</option>
+                            <option value="Lluvia Ligera">Lluvia Ligera</option>
+                            <option value="Lluvia Intensa">Lluvia Intensa</option>
+                            <option value="Seco">Seco</option>
+                            <option value="Nublado">Nublado</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-success" id="btnGuardarCarrera">Guardar Carrera</button>
+                <button type="button" class="btn btn-secondary" onclick="cancelarEdicionCarrera()" style="display:none;" id="btnCancelarCarrera">Cancelar</button>
+            </form>
+        </div>
+        
+        <div class="table-container">
+            <div id="tablaCarreras"></div>
+        </div>
+    </div>
+    
+    <!-- SECCIÓN PARTICIPACIONES -->
+    <div id="participaciones" class="content">
+        <button class="back-btn" onclick="showSection('menu')">← Volver al Menú</button>
+        <h2 class="section-title">PARTICIPACIONES <span class="record-count" id="countParticipaciones">0 registros</span></h2>
+        <div class="alert" id="alertParticipaciones"></div>
+        
+        <div class="search-bar">
+            <select id="filterCarreraParticipacion" onchange="filtrarParticipaciones()">
+                <option value="">Todas las carreras</option>
+            </select>
+        </div>
+        
+        <div class="form-container">
+            <h3 style="color: #ff0000;" id="tituloFormParticipacion">Agregar Nueva Participación</h3>
+         <form id="formParticipacion" onsubmit="guardarParticipacion(event)">
+    <!-- ESTE CAMPO ES CRÍTICO - DEBE ESTAR PRESENTE -->
+    <input type="hidden" id="id_participacion" name="id_participacion">
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label for="id_piloto_participacion">Piloto *</label>
+            <select id="id_piloto_participacion" name="id_piloto" required></select>
+        </div>
+        <div class="form-group">
+            <label for="chasis_auto_participacion">Auto *</label>
+            <select id="chasis_auto_participacion" name="chasis_auto" required></select>
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label for="id_carrera_participacion">Carrera *</label>
+            <select id="id_carrera_participacion" name="id_carrera" required></select>
+        </div>
+        <div class="form-group">
+            <label for="posicion_salida">Posición de Salida</label>
+            <input type="number" id="posicion_salida" name="posicion_salida" min="1">
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="estrategia_neumaticos">Estrategia de Neumáticos</label>
+        <input type="text" id="estrategia_neumaticos" name="estrategia_neumaticos" placeholder="Ej: Soft-Medium-Hard">
+    </div>
+    
+    <button type="submit" class="btn btn-success" id="btnGuardarParticipacion">Guardar Participación</button>
+    <button type="button" class="btn btn-secondary" onclick="cancelarEdicionParticipacion()" style="display:none;" id="btnCancelarParticipacion">Cancelar</button>
+</form>
+        </div>
+        
+        <div class="table-container">
+            <div id="tablaParticipaciones"></div>
+        </div>
+    </div>
+    
+    <!-- SECCIÓN RESULTADOS -->
+    <div id="resultados" class="content">
+        <button class="back-btn" onclick="showSection('menu')">← Volver al Menú</button>
+        <h2 class="section-title">RESULTADOS <span class="record-count" id="countResultados">0 registros</span></h2>
+        <div class="alert" id="alertResultados"></div>
+        
+        <div class="search-bar">
+            <select id="filterCarreraResultado" onchange="filtrarResultados()">
+                <option value="">Todas las carreras</option>
+            </select>
+            <select id="filterTipoSesion" onchange="filtrarResultados()">
+                <option value="">Todos los tipos</option>
+                <option value="Práctica 1">Práctica 1</option>
+                <option value="Práctica 2">Práctica 2</option>
+                <option value="Práctica 3">Práctica 3</option>
+                <option value="Clasificación">Clasificación</option>
+                <option value="Carrera">Carrera</option>
+            </select>
+        </div>
+        
+        <div class="form-container">
+    <h3 style="color: #ff0000;" id="tituloFormResultado">Agregar Nuevo Resultado</h3>
+    <form id="formResultado" onsubmit="guardarResultado(event)">
+        <!-- CAMPO OCULTO IMPORTANTE -->
+        <input type="hidden" id="id_participacion_original" name="id_participacion_original">
+        <input type="hidden" id="tipo_sesion_original" name="tipo_sesion_original">
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="id_participacion_resultado">Participación *</label>
+                <select id="id_participacion_resultado" name="id_participacion" required></select>
+            </div>
+            <div class="form-group">
+                <label for="tipo_sesion">Tipo de Sesión *</label>
+                <select id="tipo_sesion" name="tipo_sesion" required>
+                    <option value="">Seleccione</option>
+                    <option value="Práctica 1">Práctica 1</option>
+                    <option value="Práctica 2">Práctica 2</option>
+                    <option value="Práctica 3">Práctica 3</option>
+                    <option value="Clasificación">Clasificación</option>
+                    <option value="Carrera">Carrera</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="posicion_final">Posición Final</label>
+                <input type="number" id="posicion_final" name="posicion_final" min="1">
+            </div>
+            <div class="form-group">
+                <label for="puntos_obtenidos">Puntos Obtenidos</label>
+                <input type="number" id="puntos_obtenidos" name="puntos_obtenidos" min="0" max="26">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="vueltas_completadas">Vueltas Completadas</label>
+                <input type="number" id="vueltas_completadas" name="vueltas_completadas" min="0">
+            </div>
+            <div class="form-group">
+                <label for="estado_carrera">Estado de la Carrera</label>
+                <select id="estado_carrera" name="estado_carrera">
+                    <option value="Completado">Completado</option>
+                    <option value="Abandono">Abandono</option>
+                    <option value="Descalificado">Descalificado</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="tiempo_total">Tiempo Total (HH:MM:SS)</label>
+                <input type="text" id="tiempo_total" name="tiempo_total" placeholder="01:30:45">
+            </div>
+            <div class="form-group">
+                <label for="vuelta_rapida">Vuelta Rápida (MM:SS)</label>
+                <input type="text" id="vuelta_rapida" name="vuelta_rapida" placeholder="01:30.456">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="motivo_abandono">Motivo de Abandono</label>
+            <input type="text" id="motivo_abandono" name="motivo_abandono">
+        </div>
+        
+        <button type="submit" class="btn btn-success" id="btnGuardarResultado">Guardar Resultado</button>
+        <button type="button" class="btn btn-secondary" onclick="cancelarEdicionResultado()" style="display:none;" id="btnCancelarResultado">Cancelar</button>
+    </form>
+</div>
+        
+        <div class="table-container">
+            <div id="tablaResultados"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ========== VARIABLES GLOBALES ==========
+let currentSection = '';
+let editId = null;
+let allData = {
+    pilotos: [],
+    autos: [],
+    mantenimiento: [],
+    circuitos: [],
+    carreras: [],
+    participaciones: [],
+    resultados: []
+};
+
+// ========== FUNCIONES DE NAVEGACIÓN ==========
+function showSection(section) {
+    document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+    
+    if (section === 'menu') {
+        document.querySelector('.menu').style.display = 'grid';
+        currentSection = '';
+    } else {
+        document.querySelector('.menu').style.display = 'none';
+        const contentDiv = document.getElementById(section);
+        if (contentDiv) {
+            contentDiv.classList.add('active');
+            currentSection = section;
+            
+            // Cargar datos según la sección
+            switch(section) {
+                case 'equipo': loadEquipo(); break;
+                case 'pilotos': loadPilotos(); break;
+                case 'autos': loadAutos(); break;
+                case 'mantenimiento': 
+                    loadAutosForSelect('chasis_auto_mantenimiento');
+                    loadMantenimiento(); 
+                    break;
+                case 'circuitos': loadCircuitos(); break;
+                case 'carreras': 
+                    loadCircuitosForSelect('id_circuito_carrera');
+                    loadCarreras(); 
+                    break;
+                case 'participaciones': 
+                    loadPilotosForSelect('id_piloto_participacion');
+                    loadAutosForSelect('chasis_auto_participacion');
+                    loadCarrerasForSelect('id_carrera_participacion');
+                    loadParticipaciones(); 
+                    break;
+                case 'resultados': 
+                    loadParticipacionesForSelect('id_participacion_resultado');
+                    loadCarrerasForSelect('filterCarreraResultado');
+                    loadResultados(); 
+                    break;
+            }
+        }
+    }
+}
+
+// ========== FUNCIONES COMUNES ==========
+function mostrarAlerta(seccion, mensaje, tipo) {
+    const alertDiv = document.getElementById(`alert${seccion.charAt(0).toUpperCase() + seccion.slice(1)}`);
+    if (alertDiv) {
+        alertDiv.textContent = mensaje;
+        alertDiv.className = `alert alert-${tipo}`;
+        alertDiv.style.display = 'block';
+        
+        setTimeout(() => {
+            alertDiv.style.display = 'none';
+        }, 5000);
+    }
+}
+
+function resetForm(formId) {
+    document.getElementById(formId).reset();
+    editId = null;
+    
+    // Restaurar botones a estado normal
+    const guardarBtn = document.querySelector(`#${formId} .btn-success`);
+    const cancelarBtn = document.querySelector(`#${formId} .btn-secondary`);
+    const titulo = document.querySelector(`#${formId} h3`);
+    
+    if (guardarBtn) guardarBtn.textContent = guardarBtn.textContent.replace('Actualizar', 'Guardar');
+    if (cancelarBtn) cancelarBtn.style.display = 'none';
+    if (titulo) titulo.textContent = titulo.textContent.replace('Editar', 'Agregar Nuevo');
+}
+
+// ========== FUNCIONES PARA EQUIPO ==========
+async function loadEquipo() {
+    try {
+        const response = await fetch('api.php?action=get_equipo');
+        const data = await response.json();
+        
+        if (data.success && data.data.length > 0) {
+            const equipo = data.data[0];
+            
+            // Llenar formulario
+            document.getElementById('id_equipo').value = equipo.id_equipo || '';
+            document.getElementById('nombre_equipo').value = equipo.nombre || '';
+            document.getElementById('pais_equipo').value = equipo.pais || '';
+            document.getElementById('fundacion_equipo').value = equipo.fundacion || '';
+            document.getElementById('presupuesto_equipo').value = equipo.presupuesto_anual || '';
+            document.getElementById('director_tecnico').value = equipo.director_tecnico || '';
+            document.getElementById('sede_principal').value = equipo.sede_principal || '';
+        }
+    } catch (error) {
+        mostrarAlerta('equipo', 'Error cargando datos del equipo', 'error');
+    }
+}
+
+async function guardarEquipo(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const idEquipo = document.getElementById('id_equipo').value;
+    
+    try {
+        const url = idEquipo 
+            ? `api.php?action=update_equipo&id=${idEquipo}`
+            : 'api.php?action=insert_equipo';
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            mostrarAlerta('equipo', 'Equipo guardado correctamente', 'success');
+            await loadEquipo();
+        } else {
+            mostrarAlerta('equipo', result.message, 'error');
+        }
+    } catch (error) {
+        mostrarAlerta('equipo', 'Error guardando equipo', 'error');
+    }
+}
+
+// ========== FUNCIONES PARA PILOTOS ==========
+async function loadPilotos() {
+    try {
+        const response = await fetch('api.php?action=get_pilotos');
+        const data = await response.json();
+        
+        if (data.success) {
+            allData.pilotos = data.data;
+            renderPilotos();
+        }
+    } catch (error) {
+        mostrarAlerta('pilotos', 'Error cargando pilotos', 'error');
+    }
+}
+
+function renderPilotos(pilotos = allData.pilotos) {
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Nacionalidad</th>
+                    <th>Licencia FIA</th>
+                    <th>Tipo</th>
+                    <th>Número</th>
+                    <th>Experiencia</th>
+                    <th>Sueldo</th>
+                    <th>Contrato</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    if (pilotos.length === 0) {
+        html += `<tr><td colspan="10" style="text-align: center;">No hay pilotos registrados</td></tr>`;
+    } else {
+        pilotos.forEach(piloto => {
+            const contrato = piloto.fecha_contrato_inicio ? 
+                `${piloto.fecha_contrato_inicio} al ${piloto.fecha_contrato_fin || '--'}` : 
+                'Sin contrato';
+            
+            html += `
+                <tr>
+                    <td>${piloto.id_piloto}</td>
+                    <td><strong>${piloto.nombre}</strong></td>
+                    <td>${piloto.nacionalidad}</td>
+                    <td><code>${piloto.licencia_fia}</code></td>
+                    <td><span style="color: #ff0000;">${piloto.tipo_piloto}</span></td>
+                    <td>${piloto.numero_competition || 'N/A'}</td>
+                    <td>${piloto.experiencia_anos || 0} años</td>
+                    <td>$${(piloto.sueldo_base || 0).toLocaleString()}</td>
+                    <td>${contrato}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-edit" onclick="editarPiloto(${piloto.id_piloto})">Editar</button>
+                        <button class="btn btn-delete" onclick="eliminarPiloto(${piloto.id_piloto})">Eliminar</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    
+    html += `</tbody></table>`;
+    document.getElementById('tablaPilotos').innerHTML = html;
+    document.getElementById('countPilotos').textContent = `${pilotos.length} registros`;
+}
+
+function filtrarPilotos() {
+    const searchTerm = document.getElementById('searchPiloto').value.toLowerCase();
+    const tipoFilter = document.getElementById('filterTipoPiloto').value;
+    
+    const filtered = allData.pilotos.filter(piloto => {
+        const matchesSearch = piloto.nombre.toLowerCase().includes(searchTerm) ||
+                            piloto.licencia_fia.toLowerCase().includes(searchTerm);
+        const matchesType = !tipoFilter || piloto.tipo_piloto === tipoFilter;
+        return matchesSearch && matchesType;
+    });
+    
+    renderPilotos(filtered);
+}
+
+async function editarPiloto(id) {
+    try {
+        const response = await fetch(`api.php?action=get_piloto&id=${id}`);
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+            const piloto = data.data;
+            
+            // Llenar formulario
+            document.getElementById('id_piloto').value = piloto.id_piloto;
+            document.getElementById('nombre_piloto').value = piloto.nombre || '';
+            document.getElementById('nacionalidad_piloto').value = piloto.nacionalidad || '';
+            document.getElementById('fecha_nacimiento_piloto').value = piloto.fecha_nacimiento || '';
+            document.getElementById('licencia_fia').value = piloto.licencia_fia || '';
+            document.getElementById('tipo_piloto').value = piloto.tipo_piloto || '';
+            document.getElementById('numero_competition').value = piloto.numero_competition || '';
+            document.getElementById('experiencia_anos').value = piloto.experiencia_anos || '';
+            document.getElementById('sueldo_base').value = piloto.sueldo_base || '';
+            document.getElementById('fecha_contrato_inicio').value = piloto.fecha_contrato_inicio || '';
+            document.getElementById('fecha_contrato_fin').value = piloto.fecha_contrato_fin || '';
+            
+            // Cambiar interfaz
+            document.getElementById('tituloFormPiloto').textContent = 'Editar Piloto';
+            document.getElementById('btnGuardarPiloto').textContent = 'Actualizar Piloto';
+            document.getElementById('btnCancelarPiloto').style.display = 'inline-block';
+            editId = id;
+        }
+    } catch (error) {
+        mostrarAlerta('pilotos', 'Error cargando piloto', 'error');
+    }
+}
+
+function cancelarEdicionPiloto() {
+    resetForm('formPiloto');
+}
+
+async function guardarPiloto(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    
+    try {
+        const url = editId 
+            ? `api.php?action=update_piloto&id=${editId}`
+            : 'api.php?action=insert_piloto';
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            mostrarAlerta('pilotos', editId ? 'Piloto actualizado' : 'Piloto agregado', 'success');
+            resetForm('formPiloto');
+            await loadPilotos();
+        } else {
+            mostrarAlerta('pilotos', result.message, 'error');
+        }
+    } catch (error) {
+        mostrarAlerta('pilotos', 'Error guardando piloto', 'error');
+    }
+}
+
+async function eliminarPiloto(id) {
+    if (confirm('¿Estás seguro de eliminar este piloto?')) {
+        try {
+            const response = await fetch(`api.php?action=delete_piloto&id=${id}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                mostrarAlerta('pilotos', 'Piloto eliminado', 'success');
+                await loadPilotos();
+            } else {
+                mostrarAlerta('pilotos', result.message, 'error');
+            }
+        } catch (error) {
+            mostrarAlerta('pilotos', 'Error eliminando piloto', 'error');
+        }
+    }
+}
+
+async function loadPilotosForSelect(selectId) {
+    try {
+        const response = await fetch('api.php?action=get_pilotos');
+        const data = await response.json();
+        
+        if (data.success) {
+            const select = document.getElementById(selectId);
+            select.innerHTML = '<option value="">Seleccione un piloto</option>';
+            
+            data.data.forEach(piloto => {
+                const option = document.createElement('option');
+                option.value = piloto.id_piloto;
+                option.textContent = `${piloto.nombre} (#${piloto.numero_competition || 'N/A'})`;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error cargando pilotos para select:', error);
+    }
+}
+
+// ========== FUNCIONES PARA AUTOS ==========
+async function loadAutos() {
+    try {
+        const response = await fetch('api.php?action=get_autos');
+        const data = await response.json();
+        
+        if (data.success) {
+            allData.autos = data.data;
+            renderAutos();
+        }
+    } catch (error) {
+        mostrarAlerta('autos', 'Error cargando autos', 'error');
+    }
+}
+
+function renderAutos(autos = allData.autos) {
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Chasis</th>
+                    <th>Modelo</th>
+                    <th>Motor</th>
+                    <th>Año</th>
+                    <th>Tipo</th>
+                    <th>Número</th>
+                    <th>Estado</th>
+                    <th>Fabricación</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    if (autos.length === 0) {
+        html += `<tr><td colspan="9" style="text-align: center;">No hay autos registrados</td></tr>`;
+    } else {
+        autos.forEach(auto => {
+            html += `
+                <tr>
+                    <td><code>${auto.chasis_auto}</code></td>
+                    <td><strong>${auto.modelo}</strong></td>
+                    <td>${auto.motor}</td>
+                    <td>${auto.año}</td>
+                    <td>${auto.tipo_auto}</td>
+                    <td>${auto.numero_competition || 'N/A'}</td>
+                    <td><span class="${getEstadoColor(auto.estado_actual)}">${auto.estado_actual}</span></td>
+                    <td>${auto.fecha_fabricacion || 'N/A'}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-edit" onclick="editarAuto('${auto.chasis_auto}')">Editar</button>
+                        <button class="btn btn-delete" onclick="eliminarAuto('${auto.chasis_auto}')">Eliminar</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    
+    html += `</tbody></table>`;
+    document.getElementById('tablaAutos').innerHTML = html;
+    document.getElementById('countAutos').textContent = `${autos.length} registros`;
+}
+
+function getEstadoColor(estado) {
+    const colores = {
+        'Disponible': 'color: #28a745',
+        'Mantenimiento': 'color: #ffc107',
+        'Reparación': 'color: #dc3545',
+        'Retirado': 'color: #6c757d'
+    };
+    return colores[estado] || '';
+}
+
+function filtrarAutos() {
+    const searchTerm = document.getElementById('searchAuto').value.toLowerCase();
+    const tipoFilter = document.getElementById('filterTipoAuto').value;
+    
+    const filtered = allData.autos.filter(auto => {
+        const matchesSearch = auto.chasis_auto.toLowerCase().includes(searchTerm) ||
+                            auto.modelo.toLowerCase().includes(searchTerm);
+        const matchesType = !tipoFilter || auto.tipo_auto === tipoFilter;
+        return matchesSearch && matchesType;
+    });
+    
+    renderAutos(filtered);
+}
+
+async function editarAuto(chasis) {
+    try {
+        const response = await fetch(`api.php?action=get_auto&chasis=${encodeURIComponent(chasis)}`);
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+            const auto = data.data;
+            
+            // Llenar formulario
+            document.getElementById('chasis_auto_original').value = auto.chasis_auto;
+            document.getElementById('chasis_auto').value = auto.chasis_auto;
+            document.getElementById('modelo').value = auto.modelo || '';
+            document.getElementById('motor').value = auto.motor || '';
+            document.getElementById('ano').value = auto.año || '';
+            document.getElementById('tipo_auto').value = auto.tipo_auto || '';
+            document.getElementById('numero_competition_auto').value = auto.numero_competition || '';
+            document.getElementById('estado_actual').value = auto.estado_actual || '';
+            document.getElementById('fecha_fabricacion').value = auto.fecha_fabricacion || '';
+            document.getElementById('especificaciones_tecnicas').value = auto.especificaciones_tecnicas || '';
+            
+            // Cambiar interfaz
+            document.getElementById('tituloFormAuto').textContent = 'Editar Auto';
+            document.getElementById('btnGuardarAuto').textContent = 'Actualizar Auto';
+            document.getElementById('btnCancelarAuto').style.display = 'inline-block';
+            editId = chasis;
+        }
+    } catch (error) {
+        mostrarAlerta('autos', 'Error cargando auto', 'error');
+    }
+}
+
+function cancelarEdicionAuto() {
+    resetForm('formAuto');
+}
+
+async function guardarAuto(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    
+    try {
+        const url = editId 
+            ? `api.php?action=update_auto&chasis=${encodeURIComponent(editId)}`
+            : 'api.php?action=insert_auto';
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            mostrarAlerta('autos', editId ? 'Auto actualizado' : 'Auto agregado', 'success');
+            resetForm('formAuto');
+            await loadAutos();
+        } else {
+            mostrarAlerta('autos', result.message, 'error');
+        }
+    } catch (error) {
+        mostrarAlerta('autos', 'Error guardando auto', 'error');
+    }
+}
+
+async function eliminarAuto(chasis) {
+    if (confirm('¿Estás seguro de eliminar este auto?')) {
+        try {
+            const response = await fetch(`api.php?action=delete_auto&chasis=${encodeURIComponent(chasis)}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                mostrarAlerta('autos', 'Auto eliminado', 'success');
+                await loadAutos();
+            } else {
+                mostrarAlerta('autos', result.message, 'error');
+            }
+        } catch (error) {
+            mostrarAlerta('autos', 'Error eliminando auto', 'error');
+        }
+    }
+}
+
+async function loadAutosForSelect(selectId) {
+    try {
+        const response = await fetch('api.php?action=get_autos');
+        const data = await response.json();
+        
+        if (data.success) {
+            const select = document.getElementById(selectId);
+            select.innerHTML = '<option value="">Seleccione un auto</option>';
+            
+            data.data.forEach(auto => {
+                const option = document.createElement('option');
+                option.value = auto.chasis_auto;
+                option.textContent = `${auto.chasis_auto} - ${auto.modelo}`;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error cargando autos para select:', error);
+    }
+}
+
+// ========== FUNCIONES PARA MANTENIMIENTO ==========
+async function loadMantenimiento() {
+    try {
+        const response = await fetch('api.php?action=get_mantenimiento');
+        const data = await response.json();
+        
+        if (data.success) {
+            allData.mantenimiento = data.data;
+            renderMantenimiento();
+        }
+    } catch (error) {
+        mostrarAlerta('mantenimiento', 'Error cargando mantenimientos', 'error');
+    }
+}
+
+function renderMantenimiento(mantenimientos = allData.mantenimiento) {
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Chasis</th>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Duración</th>
+                    <th>Costo</th>
+                    <th>Técnico</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    if (mantenimientos.length === 0) {
+        html += `<tr><td colspan="8" style="text-align: center;">No hay mantenimientos registrados</td></tr>`;
+    } else {
+        mantenimientos.forEach(mantenimiento => {
+            html += `
+                <tr>
+                    <td>${mantenimiento.id_mantenimiento}</td>
+                    <td><code>${mantenimiento.chasis_auto}</code></td>
+                    <td>${mantenimiento.fecha_mantenimiento}</td>
+                    <td>${mantenimiento.tipo}</td>
+                    <td>${mantenimiento.duracion_horas || 0} hrs</td>
+                    <td>$${(mantenimiento.costo_estimado || 0).toLocaleString()}</td>
+                    <td>${mantenimiento.tecnico_responsable}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-edit" onclick="editarMantenimiento(${mantenimiento.id_mantenimiento})">Editar</button>
+                        <button class="btn btn-delete" onclick="eliminarMantenimiento(${mantenimiento.id_mantenimiento})">Eliminar</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    
+    html += `</tbody></table>`;
+    document.getElementById('tablaMantenimiento').innerHTML = html;
+    document.getElementById('countMantenimiento').textContent = `${mantenimientos.length} registros`;
+}
+
+function filtrarMantenimiento() {
+    const searchTerm = document.getElementById('searchMantenimiento').value.toLowerCase();
+    const tipoFilter = document.getElementById('filterTipoMantenimiento').value;
+    
+    const filtered = allData.mantenimiento.filter(m => {
+        const matchesSearch = m.chasis_auto.toLowerCase().includes(searchTerm) ||
+                            m.tecnico_responsable.toLowerCase().includes(searchTerm);
+        const matchesType = !tipoFilter || m.tipo === tipoFilter;
+        return matchesSearch && matchesType;
+    });
+    
+    renderMantenimiento(filtered);
+}
+
+// Funciones similares para mantenimiento, circuitos, carreras, etc.
+
+// ========== FUNCIONES PARA MANTENIMIENTO (COMPLETAS) ==========
+async function editarMantenimiento(id) {
+    try {
+        const response = await fetch(`api.php?action=get_mantenimiento&id=${id}`);
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+            const mantenimiento = data.data;
+            
+            document.getElementById('id_mantenimiento').value = mantenimiento.id_mantenimiento;
+            document.getElementById('chasis_auto_mantenimiento').value = mantenimiento.chasis_auto;
+            document.getElementById('fecha_mantenimiento').value = mantenimiento.fecha_mantenimiento;
+            document.getElementById('tipo_mantenimiento').value = mantenimiento.tipo;
+            document.getElementById('descripcion_mantenimiento').value = mantenimiento.descripcion || '';
+            document.getElementById('duracion_horas').value = mantenimiento.duracion_horas || '';
+            document.getElementById('costo_estimado').value = mantenimiento.costo_estimado || '';
+            document.getElementById('tecnico_responsable').value = mantenimiento.tecnico_responsable || '';
+            
+            document.getElementById('tituloFormMantenimiento').textContent = 'Editar Mantenimiento';
+            document.getElementById('btnGuardarMantenimiento').textContent = 'Actualizar Mantenimiento';
+            document.getElementById('btnCancelarMantenimiento').style.display = 'inline-block';
+            editId = id;
+        }
+    } catch (error) {
+        mostrarAlerta('mantenimiento', 'Error cargando mantenimiento', 'error');
+    }
+}
+
+function cancelarEdicionMantenimiento() {
+    resetForm('formMantenimiento');
+}
+
+async function guardarMantenimiento(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    
+    try {
+        const url = editId 
+            ? `api.php?action=update_mantenimiento&id=${editId}`
+            : 'api.php?action=insert_mantenimiento';
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            mostrarAlerta('mantenimiento', editId ? 'Mantenimiento actualizado' : 'Mantenimiento agregado', 'success');
+            resetForm('formMantenimiento');
+            await loadMantenimiento();
+        } else {
+            mostrarAlerta('mantenimiento', result.message, 'error');
+        }
+    } catch (error) {
+        mostrarAlerta('mantenimiento', 'Error guardando mantenimiento', 'error');
+    }
+}
+
+async function eliminarMantenimiento(id) {
+    if (confirm('¿Estás seguro de eliminar este mantenimiento?')) {
+        try {
+            const response = await fetch(`api.php?action=delete_mantenimiento&id=${id}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                mostrarAlerta('mantenimiento', 'Mantenimiento eliminado', 'success');
+                await loadMantenimiento();
+            } else {
+                mostrarAlerta('mantenimiento', result.message, 'error');
+            }
+        } catch (error) {
+            mostrarAlerta('mantenimiento', 'Error eliminando mantenimiento', 'error');
+        }
+    }
+}
+
+// ========== FUNCIONES PARA CIRCUITOS (COMPLETAS) ==========
+async function loadCircuitos() {
+    try {
+        const response = await fetch('api.php?action=get_circuitos');
+        const data = await response.json();
+        
+        if (data.success) {
+            allData.circuitos = data.data;
+            renderCircuitos();
+            actualizarFiltroPaises();
+        }
+    } catch (error) {
+        mostrarAlerta('circuitos', 'Error cargando circuitos', 'error');
+    }
+}
+
+function renderCircuitos(circuitos = allData.circuitos) {
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>País</th>
+                    <th>Longitud (km)</th>
+                    <th>Tipo</th>
+                    <th>Curvas</th>
+                    <th>Capacidad</th>
+                    <th>Récord</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    if (circuitos.length === 0) {
+        html += `<tr><td colspan="9" style="text-align: center;">No hay circuitos registrados</td></tr>`;
+    } else {
+        circuitos.forEach(circuito => {
+            html += `
+                <tr>
+                    <td>${circuito.id_circuito}</td>
+                    <td><strong>${circuito.nombre}</strong></td>
+                    <td>${circuito.pais}</td>
+                    <td>${parseFloat(circuito.longitud_km).toFixed(3)} km</td>
+                    <td>${circuito.tipo_circuito}</td>
+                    <td>${circuito.numero_curvas}</td>
+                    <td>${circuito.capacidad_espectadores ? circuito.capacidad_espectadores.toLocaleString() : 'N/A'}</td>
+                    <td>${circuito.record_vuelta || 'N/A'}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-edit" onclick="editarCircuito(${circuito.id_circuito})">Editar</button>
+                        <button class="btn btn-delete" onclick="eliminarCircuito(${circuito.id_circuito})">Eliminar</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    
+    html += `</tbody></table>`;
+    document.getElementById('tablaCircuitos').innerHTML = html;
+    document.getElementById('countCircuitos').textContent = `${circuitos.length} registros`;
+}
+
+function actualizarFiltroPaises() {
+    const select = document.getElementById('filterPaisCircuito');
+    const paises = [...new Set(allData.circuitos.map(c => c.pais))].sort();
+    
+    select.innerHTML = '<option value="">Todos los países</option>';
+    paises.forEach(pais => {
+        const option = document.createElement('option');
+        option.value = pais;
+        option.textContent = pais;
+        select.appendChild(option);
+    });
+}
+
+function filtrarCircuitos() {
+    const searchTerm = document.getElementById('searchCircuito').value.toLowerCase();
+    const paisFilter = document.getElementById('filterPaisCircuito').value;
+    
+    const filtered = allData.circuitos.filter(circuito => {
+        const matchesSearch = circuito.nombre.toLowerCase().includes(searchTerm) ||
+                            circuito.pais.toLowerCase().includes(searchTerm);
+        const matchesPais = !paisFilter || circuito.pais === paisFilter;
+        return matchesSearch && matchesPais;
+    });
+    
+    renderCircuitos(filtered);
+}
+
+async function editarCircuito(id) {
+    try {
+        const response = await fetch(`api.php?action=get_circuito&id=${id}`);
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+            const circuito = data.data;
+            
+            document.getElementById('id_circuito').value = circuito.id_circuito;
+            document.getElementById('nombre_circuito').value = circuito.nombre || '';
+            document.getElementById('pais_circuito').value = circuito.pais || '';
+            document.getElementById('longitud_km').value = circuito.longitud_km || '';
+            document.getElementById('record_vuelta').value = circuito.record_vuelta || '';
+            document.getElementById('tipo_circuito').value = circuito.tipo_circuito || '';
+            document.getElementById('numero_curvas').value = circuito.numero_curvas || '';
+            document.getElementById('capacidad_espectadores').value = circuito.capacidad_espectadores || '';
+            
+            document.getElementById('tituloFormCircuito').textContent = 'Editar Circuito';
+            document.getElementById('btnGuardarCircuito').textContent = 'Actualizar Circuito';
+            document.getElementById('btnCancelarCircuito').style.display = 'inline-block';
+            editId = id;
+        }
+    } catch (error) {
+        mostrarAlerta('circuitos', 'Error cargando circuito', 'error');
+    }
+}
+
+function cancelarEdicionCircuito() {
+    resetForm('formCircuito');
+}
+
+async function guardarCircuito(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    
+    try {
+        const url = editId 
+            ? `api.php?action=update_circuito&id=${editId}`
+            : 'api.php?action=insert_circuito';
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            mostrarAlerta('circuitos', editId ? 'Circuito actualizado' : 'Circuito agregado', 'success');
+            resetForm('formCircuito');
+            await loadCircuitos();
+        } else {
+            mostrarAlerta('circuitos', result.message, 'error');
+        }
+    } catch (error) {
+        mostrarAlerta('circuitos', 'Error guardando circuito', 'error');
+    }
+}
+
+async function eliminarCircuito(id) {
+    if (confirm('¿Estás seguro de eliminar este circuito?')) {
+        try {
+            const response = await fetch(`api.php?action=delete_circuito&id=${id}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                mostrarAlerta('circuitos', 'Circuito eliminado', 'success');
+                await loadCircuitos();
+            } else {
+                mostrarAlerta('circuitos', result.message, 'error');
+            }
+        } catch (error) {
+            mostrarAlerta('circuitos', 'Error eliminando circuito', 'error');
+        }
+    }
+}
+
+async function loadCircuitosForSelect(selectId) {
+    try {
+        const response = await fetch('api.php?action=get_circuitos');
+        const data = await response.json();
+        
+        if (data.success) {
+            const select = document.getElementById(selectId);
+            select.innerHTML = '<option value="">Seleccione un circuito</option>';
+            
+            data.data.forEach(circuito => {
+                const option = document.createElement('option');
+                option.value = circuito.id_circuito;
+                option.textContent = `${circuito.nombre} (${circuito.pais})`;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error cargando circuitos para select:', error);
+    }
+}
+
+// ========== FUNCIONES PARA CARRERAS (COMPLETAS) ==========
+async function loadCarreras() {
+    try {
+        const response = await fetch('api.php?action=get_carreras');
+        const data = await response.json();
+        
+        if (data.success) {
+            allData.carreras = data.data;
+            renderCarreras();
+        }
+    } catch (error) {
+        mostrarAlerta('carreras', 'Error cargando carreras', 'error');
+    }
+}
+
+function renderCarreras(carreras = allData.carreras) {
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Circuito</th>
+                    <th>Fecha</th>
+                    <th>Temporada</th>
+                    <th>Vueltas</th>
+                    <th>Clima</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    if (carreras.length === 0) {
+        html += `<tr><td colspan="8" style="text-align: center;">No hay carreras registradas</td></tr>`;
+    } else {
+        carreras.forEach(carrera => {
+            html += `
+                <tr>
+                    <td>${carrera.id_carrera}</td>
+                    <td><strong>${carrera.nombre}</strong></td>
+                    <td>${carrera.nombre_circuito}</td>
+                    <td>${carrera.fecha}</td>
+                    <td>${carrera.temporada}</td>
+                    <td>${carrera.vueltas_planificadas}</td>
+                    <td>${carrera.condiciones_climaticas}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-edit" onclick="editarCarrera(${carrera.id_carrera})">Editar</button>
+                        <button class="btn btn-delete" onclick="eliminarCarrera(${carrera.id_carrera})">Eliminar</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    
+    html += `</tbody></table>`;
+    document.getElementById('tablaCarreras').innerHTML = html;
+    document.getElementById('countCarreras').textContent = `${carreras.length} registros`;
+}
+
+function filtrarCarreras() {
+    const searchTerm = document.getElementById('searchCarrera').value.toLowerCase();
+    const temporadaFilter = document.getElementById('filterTemporadaCarrera').value;
+    
+    const filtered = allData.carreras.filter(carrera => {
+        const matchesSearch = carrera.nombre.toLowerCase().includes(searchTerm) ||
+                            carrera.nombre_circuito.toLowerCase().includes(searchTerm);
+        const matchesTemporada = !temporadaFilter || carrera.temporada.toString() === temporadaFilter;
+        return matchesSearch && matchesTemporada;
+    });
+    
+    renderCarreras(filtered);
+}
+
+async function editarCarrera(id) {
+    try {
+        const response = await fetch(`api.php?action=get_carrera&id=${id}`);
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+            const carrera = data.data;
+            
+            document.getElementById('id_carrera').value = carrera.id_carrera;
+            document.getElementById('nombre_carrera').value = carrera.nombre || '';
+            document.getElementById('id_circuito_carrera').value = carrera.id_circuito || '';
+            document.getElementById('fecha_carrera').value = carrera.fecha || '';
+            document.getElementById('temporada_carrera').value = carrera.temporada || '';
+            document.getElementById('vueltas_planificadas').value = carrera.vueltas_planificadas || '';
+            document.getElementById('condiciones_climaticas').value = carrera.condiciones_climaticas || '';
+            
+            document.getElementById('tituloFormCarrera').textContent = 'Editar Carrera';
+            document.getElementById('btnGuardarCarrera').textContent = 'Actualizar Carrera';
+            document.getElementById('btnCancelarCarrera').style.display = 'inline-block';
+            editId = id;
+        }
+    } catch (error) {
+        mostrarAlerta('carreras', 'Error cargando carrera', 'error');
+    }
+}
+
+function cancelarEdicionCarrera() {
+    resetForm('formCarrera');
+}
+
+async function guardarCarrera(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    
+    try {
+        const url = editId 
+            ? `api.php?action=update_carrera&id=${editId}`
+            : 'api.php?action=insert_carrera';
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            mostrarAlerta('carreras', editId ? 'Carrera actualizada' : 'Carrera agregada', 'success');
+            resetForm('formCarrera');
+            await loadCarreras();
+            await loadCarrerasForSelect('id_carrera_participacion');
+            await loadCarrerasForSelect('filterCarreraResultado');
+        } else {
+            mostrarAlerta('carreras', result.message, 'error');
+        }
+    } catch (error) {
+        mostrarAlerta('carreras', 'Error guardando carrera', 'error');
+    }
+}
+
+async function eliminarCarrera(id) {
+    if (confirm('¿Estás seguro de eliminar esta carrera?')) {
+        try {
+            const response = await fetch(`api.php?action=delete_carrera&id=${id}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                mostrarAlerta('carreras', 'Carrera eliminada', 'success');
+                await loadCarreras();
+                await loadCarrerasForSelect('id_carrera_participacion');
+                await loadCarrerasForSelect('filterCarreraResultado');
+            } else {
+                mostrarAlerta('carreras', result.message, 'error');
+            }
+        } catch (error) {
+            mostrarAlerta('carreras', 'Error eliminando carrera', 'error');
+        }
+    }
+}
+
+async function loadCarrerasForSelect(selectId) {
+    try {
+        const response = await fetch('api.php?action=get_carreras');
+        const data = await response.json();
+        
+        if (data.success) {
+            const select = document.getElementById(selectId);
+            select.innerHTML = '<option value="">Seleccione una carrera</option>';
+            
+            data.data.forEach(carrera => {
+                const option = document.createElement('option');
+                option.value = carrera.id_carrera;
+                option.textContent = `${carrera.nombre} (${carrera.fecha})`;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error cargando carreras para select:', error);
+    }
+}
+
+// ========== FUNCIONES PARA PARTICIPACIONES (COMPLETAS) ==========
+// ========== FUNCIONES PARA PARTICIPACIONES (VERSIÓN CORREGIDA) ==========
+let participacionEditando = null;
+
+async function loadParticipaciones() {
+    try {
+        const response = await fetch('api.php?action=get_participaciones');
+        const data = await response.json();
+        
+        if (data.success) {
+            allData.participaciones = data.data;
+            renderParticipaciones();
+        }
+    } catch (error) {
+        mostrarAlerta('participaciones', 'Error cargando participaciones', 'error');
+    }
+}
+
+function renderParticipaciones(participaciones = allData.participaciones) {
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Piloto</th>
+                    <th>Auto</th>
+                    <th>Carrera</th>
+                    <th>Pos. Salida</th>
+                    <th>Estrategia</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    if (participaciones.length === 0) {
+        html += `<tr><td colspan="8" style="text-align: center;">No hay participaciones registradas</td></tr>`;
+    } else {
+        participaciones.forEach(participacion => {
+            html += `
+                <tr>
+                    <td>${participacion.id_participacion}</td>
+                    <td><strong>${participacion.nombre_piloto}</strong></td>
+                    <td>${participacion.modelo}</td>
+                    <td>${participacion.nombre_carrera}</td>
+                    <td>${participacion.posicion_salida || 'N/A'}</td>
+                    <td>${participacion.estrategia_neumaticos || 'N/A'}</td>
+                    <td>${participacion.fecha_creacion ? participacion.fecha_creacion.split(' ')[0] : 'N/A'}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-edit" onclick="editarParticipacion(${participacion.id_participacion})">Editar</button>
+                        <button class="btn btn-delete" onclick="eliminarParticipacion(${participacion.id_participacion})">Eliminar</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    
+    html += `</tbody></table>`;
+    document.getElementById('tablaParticipaciones').innerHTML = html;
+    document.getElementById('countParticipaciones').textContent = `${participaciones.length} registros`;
+}
+
+async function editarParticipacion(id) {
+    try {
+        const response = await fetch(`api.php?action=get_participacion&id=${id}`);
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+            const participacion = data.data;
+            
+            // Llenar formulario con los datos
+            document.getElementById('id_participacion').value = participacion.id_participacion;
+            document.getElementById('id_piloto_participacion').value = participacion.id_piloto;
+            document.getElementById('chasis_auto_participacion').value = participacion.chasis_auto;
+            document.getElementById('id_carrera_participacion').value = participacion.id_carrera;
+            document.getElementById('posicion_salida').value = participacion.posicion_salida || '';
+            document.getElementById('estrategia_neumaticos').value = participacion.estrategia_neumaticos || '';
+            
+            // Cambiar interfaz
+            document.getElementById('tituloFormParticipacion').textContent = 'Editar Participación';
+            document.getElementById('btnGuardarParticipacion').textContent = 'Actualizar Participación';
+            document.getElementById('btnCancelarParticipacion').style.display = 'inline-block';
+            
+            participacionEditando = participacion.id_participacion;
+        }
+    } catch (error) {
+        mostrarAlerta('participaciones', 'Error cargando participación', 'error');
+    }
+}
+
+function cancelarEdicionParticipacion() {
+    resetFormParticipacion();
+}
+
+function resetFormParticipacion() {
+    document.getElementById('formParticipacion').reset();
+    document.getElementById('id_participacion').value = '';
+    document.getElementById('tituloFormParticipacion').textContent = 'Agregar Nueva Participación';
+    document.getElementById('btnGuardarParticipacion').textContent = 'Guardar Participación';
+    document.getElementById('btnCancelarParticipacion').style.display = 'none';
+    participacionEditando = null;
+}
+
+async function guardarParticipacion(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    
+    try {
+        // Determinar si es INSERT o UPDATE
+        const idParticipacion = document.getElementById('id_participacion').value;
+        
+        let url;
+        if (idParticipacion && idParticipacion > 0) {
+            // UPDATE
+            url = `api.php?action=update_participacion&id=${idParticipacion}`;
+        } else {
+            // INSERT
+            url = 'api.php?action=insert_participacion';
+        }
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            mostrarAlerta('participaciones', idParticipacion ? 'Participación actualizada' : 'Participación agregada', 'success');
+            resetFormParticipacion();
+            await loadParticipaciones();
+        } else {
+            mostrarAlerta('participaciones', result.message, 'error');
+        }
+    } catch (error) {
+        mostrarAlerta('participaciones', 'Error guardando participación', 'error');
+    }
+}
+
+async function eliminarParticipacion(id) {
+    if (confirm('¿Estás seguro de eliminar esta participación?')) {
+        try {
+            const response = await fetch(`api.php?action=delete_participacion&id=${id}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                mostrarAlerta('participaciones', 'Participación eliminada', 'success');
+                await loadParticipaciones();
+            } else {
+                mostrarAlerta('participaciones', result.message, 'error');
+            }
+        } catch (error) {
+            mostrarAlerta('participaciones', 'Error eliminando participación', 'error');
+        }
+    }
+}
+
+// Funciones para cargar selects
+async function loadPilotosForSelect(selectId) {
+    try {
+        const response = await fetch('api.php?action=get_pilotos');
+        const data = await response.json();
+        
+        if (data.success) {
+            const select = document.getElementById(selectId);
+            select.innerHTML = '<option value="">Seleccione un piloto</option>';
+            
+            data.data.forEach(piloto => {
+                const option = document.createElement('option');
+                option.value = piloto.id_piloto;
+                option.textContent = `${piloto.nombre} (#${piloto.numero_competition || 'N/A'})`;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error cargando pilotos para select:', error);
+    }
+}
+
+async function loadAutosForSelect(selectId) {
+    try {
+        const response = await fetch('api.php?action=get_autos');
+        const data = await response.json();
+        
+        if (data.success) {
+            const select = document.getElementById(selectId);
+            select.innerHTML = '<option value="">Seleccione un auto</option>';
+            
+            data.data.forEach(auto => {
+                const option = document.createElement('option');
+                option.value = auto.chasis_auto;
+                option.textContent = `${auto.chasis_auto} - ${auto.modelo}`;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error cargando autos para select:', error);
+    }
+}
+
+async function loadCarrerasForSelect(selectId) {
+    try {
+        const response = await fetch('api.php?action=get_carreras');
+        const data = await response.json();
+        
+        if (data.success) {
+            const select = document.getElementById(selectId);
+            select.innerHTML = '<option value="">Seleccione una carrera</option>';
+            
+            data.data.forEach(carrera => {
+                const option = document.createElement('option');
+                option.value = carrera.id_carrera;
+                option.textContent = `${carrera.nombre} (${carrera.fecha})`;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error cargando carreras para select:', error);
+    }
+}
+// ========== FUNCIONES PARA RESULTADOS (COMPLETAS) ==========
+// ========== FUNCIONES PARA RESULTADOS (VERSIÓN CORREGIDA) ==========
+let resultadoEditando = null;
+
+async function loadResultados() {
+    try {
+        const response = await fetch('api.php?action=get_resultados');
+        const data = await response.json();
+        
+        if (data.success) {
+            allData.resultados = data.data;
+            renderResultados();
+        }
+    } catch (error) {
+        mostrarAlerta('resultados', 'Error cargando resultados', 'error');
+    }
+}
+
+function renderResultados(resultados = allData.resultados) {
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Participación</th>
+                    <th>Piloto</th>
+                    <th>Carrera</th>
+                    <th>Sesión</th>
+                    <th>Posición</th>
+                    <th>Puntos</th>
+                    <th>Vueltas</th>
+                    <th>Tiempo</th>
+                    <th>Vuelta Rápida</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    if (resultados.length === 0) {
+        html += `<tr><td colspan="11" style="text-align: center;">No hay resultados registrados</td></tr>`;
+    } else {
+        resultados.forEach(resultado => {
+            const estadoColor = resultado.estado_carrera === 'Completado' ? '#28a745' : 
+                              resultado.estado_carrera === 'Abandono' ? '#dc3545' : '#ffc107';
+            
+            html += `
+                <tr>
+                    <td>${resultado.id_participacion}</td>
+                    <td><strong>${resultado.nombre_piloto}</strong></td>
+                    <td>${resultado.nombre_carrera}</td>
+                    <td>${resultado.tipo_sesion}</td>
+                    <td>${resultado.posicion_final || 'N/A'}</td>
+                    <td>${resultado.puntos_obtenidos}</td>
+                    <td>${resultado.vueltas_completadas}</td>
+                    <td>${resultado.tiempo_total || 'N/A'}</td>
+                    <td>${resultado.vuelta_rapida || 'N/A'}</td>
+                    <td style="color: ${estadoColor}">${resultado.estado_carrera}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-edit" onclick="editarResultado(${resultado.id_participacion}, '${resultado.tipo_sesion}')">Editar</button>
+                        <button class="btn btn-delete" onclick="eliminarResultado(${resultado.id_participacion}, '${resultado.tipo_sesion}')">Eliminar</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    
+    html += `</tbody></table>`;
+    document.getElementById('tablaResultados').innerHTML = html;
+    document.getElementById('countResultados').textContent = `${resultados.length} registros`;
+}
+
+async function editarResultado(idParticipacion, tipoSesion) {
+    try {
+        const response = await fetch(`api.php?action=get_resultado&id=${idParticipacion}&tipo=${encodeURIComponent(tipoSesion)}`);
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+            const resultado = data.data;
+            
+            // Guardar los valores originales (importante para UPDATE)
+            document.getElementById('id_participacion_original').value = resultado.id_participacion;
+            document.getElementById('tipo_sesion_original').value = resultado.tipo_sesion;
+            
+            // Llenar formulario
+            document.getElementById('id_participacion_resultado').value = resultado.id_participacion;
+            document.getElementById('tipo_sesion').value = resultado.tipo_sesion;
+            document.getElementById('posicion_final').value = resultado.posicion_final || '';
+            document.getElementById('puntos_obtenidos').value = resultado.puntos_obtenidos || '';
+            document.getElementById('vueltas_completadas').value = resultado.vueltas_completadas || '';
+            document.getElementById('tiempo_total').value = resultado.tiempo_total || '';
+            document.getElementById('vuelta_rapida').value = resultado.vuelta_rapida || '';
+            document.getElementById('estado_carrera').value = resultado.estado_carrera || '';
+            document.getElementById('motivo_abandono').value = resultado.motivo_abandono || '';
+            
+            // Cambiar interfaz
+            document.getElementById('tituloFormResultado').textContent = 'Editar Resultado';
+            document.getElementById('btnGuardarResultado').textContent = 'Actualizar Resultado';
+            document.getElementById('btnCancelarResultado').style.display = 'inline-block';
+            
+            resultadoEditando = { id: idParticipacion, tipo: tipoSesion };
+        }
+    } catch (error) {
+        mostrarAlerta('resultados', 'Error cargando resultado', 'error');
+    }
+}
+
+function cancelarEdicionResultado() {
+    resetFormResultado();
+}
+
+function resetFormResultado() {
+    document.getElementById('formResultado').reset();
+    document.getElementById('id_participacion_original').value = '';
+    document.getElementById('tipo_sesion_original').value = '';
+    document.getElementById('tituloFormResultado').textContent = 'Agregar Nuevo Resultado';
+    document.getElementById('btnGuardarResultado').textContent = 'Guardar Resultado';
+    document.getElementById('btnCancelarResultado').style.display = 'none';
+    resultadoEditando = null;
+}
+
+async function guardarResultado(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    
+    try {
+        // Determinar si es INSERT o UPDATE
+        const idParticipacionOriginal = document.getElementById('id_participacion_original').value;
+        const tipoSesionOriginal = document.getElementById('tipo_sesion_original').value;
+        
+        let url;
+        if (idParticipacionOriginal && tipoSesionOriginal) {
+            // UPDATE - enviar ambos parámetros por GET
+            url = `api.php?action=update_resultado&id=${idParticipacionOriginal}&tipo=${encodeURIComponent(tipoSesionOriginal)}`;
+        } else {
+            // INSERT
+            url = 'api.php?action=insert_resultado';
+        }
+        
+        console.log('URL:', url);
+        console.log('Datos:', Array.from(formData.entries()));
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        console.log('Respuesta:', result);
+        
+        if (result.success) {
+            mostrarAlerta('resultados', idParticipacionOriginal ? 'Resultado actualizado' : 'Resultado agregado', 'success');
+            resetFormResultado();
+            await loadResultados();
+        } else {
+            mostrarAlerta('resultados', result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarAlerta('resultados', 'Error guardando resultado: ' + error.message, 'error');
+    }
+}
+
+async function eliminarResultado(idParticipacion, tipoSesion) {
+    if (confirm('¿Estás seguro de eliminar este resultado?')) {
+        try {
+            const response = await fetch(`api.php?action=delete_resultado&id=${idParticipacion}&tipo=${encodeURIComponent(tipoSesion)}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                mostrarAlerta('resultados', 'Resultado eliminado', 'success');
+                await loadResultados();
+            } else {
+                mostrarAlerta('resultados', result.message, 'error');
+            }
+        } catch (error) {
+            mostrarAlerta('resultados', 'Error eliminando resultado', 'error');
+        }
+    }
+}
+
+// Para el filtro de carreras en resultados
+async function loadCarrerasForSelect(selectId) {
+    try {
+        const response = await fetch('api.php?action=get_carreras');
+        const data = await response.json();
+        
+        if (data.success) {
+            const select = document.getElementById(selectId);
+            if (select) {
+                select.innerHTML = '<option value="">Todas las carreras</option>';
+                
+                data.data.forEach(carrera => {
+                    const option = document.createElement('option');
+                    option.value = carrera.id_carrera;
+                    option.textContent = `${carrera.nombre} (${carrera.fecha})`;
+                    select.appendChild(option);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error cargando carreras para select:', error);
+    }
+}
+
+// Para el filtro de participaciones en resultados
+async function loadParticipacionesForSelect(selectId) {
+    try {
+        const response = await fetch('api.php?action=get_participaciones');
+        const data = await response.json();
+        
+        if (data.success) {
+            const select = document.getElementById(selectId);
+            if (select) {
+                select.innerHTML = '<option value="">Seleccione una participación</option>';
+                
+                data.data.forEach(participacion => {
+                    const option = document.createElement('option');
+                    option.value = participacion.id_participacion;
+                    option.textContent = `${participacion.nombre_piloto} - ${participacion.nombre_carrera}`;
+                    select.appendChild(option);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error cargando participaciones para select:', error);
+    }
+}
+
+// Función para filtrar resultados
+function filtrarResultados() {
+    const carreraFilter = document.getElementById('filterCarreraResultado').value;
+    const tipoFilter = document.getElementById('filterTipoSesion').value;
+    
+    const filtered = allData.resultados.filter(resultado => {
+        const matchesCarrera = !carreraFilter || resultado.id_carrera == carreraFilter;
+        const matchesTipo = !tipoFilter || resultado.tipo_sesion === tipoFilter;
+        return matchesCarrera && matchesTipo;
+    });
+    
+    renderResultados(filtered);
+}
+
+// ✅ AGREGAR INTERFAZ DE USUARIO Y LOGOUT
+function agregarInterfazUsuario() {
+    // Crear contenedor de usuario
+    const userContainer = document.createElement('div');
+    userContainer.id = 'userContainer';
+    userContainer.style.cssText = `
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 0, 0, 0.1);
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: 1px solid #ff0000;
+        color: white;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 1000;
+    `;
+    
+    // Información del usuario
+    const userInfo = document.createElement('span');
+    const username = localStorage.getItem('username') || 'Usuario';
+    const userRole = localStorage.getItem('userRole') || 'Usuario';
+    userInfo.textContent = `👤 ${username} (${userRole})`;
+    userInfo.style.marginRight = '10px';
+    
+    // Botón de logout
+    const logoutBtn = document.createElement('button');
+    logoutBtn.textContent = '🚪 Cerrar Sesión';
+    logoutBtn.className = 'btn';
+    logoutBtn.style.cssText = `
+        background: #dc3545;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        color: white;
+        cursor: pointer;
+        font-size: 12px;
+        transition: background 0.3s ease;
+    `;
+    
+    logoutBtn.onmouseover = function() {
+        this.style.background = '#c82333';
+    };
+    
+    logoutBtn.onmouseout = function() {
+        this.style.background = '#dc3545';
+    };
+    
+    logoutBtn.onclick = function() {
+        if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+            // Limpiar localStorage
+            localStorage.removeItem('userAuthenticated');
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('username');
+            
+            // Cerrar sesión en el servidor (si existe el archivo)
+            fetch('login.php?action=logout')
+                .then(() => {
+                    window.location.href = 'login.html';
+                })
+                .catch(() => {
+                    window.location.href = 'login.html';
+                });
+        }
+    };
+    
+    // Agregar elementos al contenedor
+    userContainer.appendChild(userInfo);
+    userContainer.appendChild(logoutBtn);
+    
+    // Agregar al header
+    const header = document.querySelector('.header');
+    if (header) {
+        header.style.position = 'relative';
+        header.appendChild(userContainer);
+    }
+}
+
+// Llamar a la función cuando el DOM esté cargado
+document.addEventListener('DOMContentLoaded', function() {
+    agregarInterfazUsuario();
+    
+    // Resto de tu código de inicialización...
+    loadEquipo();
+    
+    // Inicializar selects vacíos
+    loadPilotosForSelect('id_piloto_participacion');
+    loadAutosForSelect('chasis_auto_participacion');
+    loadAutosForSelect('chasis_auto_mantenimiento');
+    loadCircuitosForSelect('id_circuito_carrera');
+    loadCarrerasForSelect('id_carrera_participacion');
+    loadCarrerasForSelect('filterCarreraResultado');
+});
+// ========== INICIALIZACIÓN ==========
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar equipo al iniciar
+    loadEquipo();
+    
+    // Inicializar selects vacíos
+    loadPilotosForSelect('id_piloto_participacion');
+    loadAutosForSelect('chasis_auto_participacion');
+    loadAutosForSelect('chasis_auto_mantenimiento');
+    loadCircuitosForSelect('id_circuito_carrera');
+    loadCarrerasForSelect('id_carrera_participacion');
+    loadCarrerasForSelect('filterCarreraResultado');
+});
+    
+</script>
+    
+</script>
+</body>
+</html>
