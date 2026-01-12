@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistema de Gestión de Automovilismo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .login-container {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.3);
+            border: 1px solid #333;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #ff0000;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .logo p {
+            color: #cccccc;
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #ff0000;
+            outline: none;
+        }
+
+        .btn-login {
+            width: 100%;
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .alert {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            display: none;
+            text-align: center;
+        }
+
+        .alert-error {
+            background: #721c24;
+            color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-success {
+            background: #155724;
+            color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+
+        .demo-credentials {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #ff0000;
+            margin-top: 25px;
+        }
+
+        .demo-credentials h3 {
+            color: #ff0000;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .demo-credentials code {
+            background: #000;
+            padding: 8px 12px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 5px 0;
+            font-family: 'Courier New', monospace;
+            border: 1px solid #333;
+        }
+
+        .credential-item {
+            margin-bottom: 8px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .spinner {
+            border: 3px solid #333;
+            border-top: 3px solid #ff0000;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1> SISTEMA F1</h1>
+            <p>Sistema de Gestión de Automovilismo</p>
+        </div>
+        
+        <div class="alert alert-error" id="alertError"></div>
+        <div class="alert alert-success" id="alertSuccess"></div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username"> Usuario:</label>
+                <input type="text" id="username" name="username" required placeholder="Ingresa tu usuario">
+            </div>
+            <div class="form-group">
+                <label for="password"> Contraseña:</label>
+                <input type="password" id="password" name="password" required placeholder="Ingresa tu contraseña">
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px;">Verificando credenciales...</p>
+            </div>
+            
+            <button type="submit" class="btn-login" id="loginBtn">🏎️ Ingresar al Sistema</button>
+        </form>
+        
+        <div class="demo-credentials">
+            <h3>Credenciales de demostración:</h3>
+            <div class="credential-item">
+                <strong>Usuario:</strong> <code>piloto</code>
+            </div>
+            <div class="credential-item">
+                <strong>Contraseña:</strong> <code>f1racing2024</code>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ✅ VERIFICAR SI YA ESTÁ AUTENTICADO
+        if (localStorage.getItem('userAuthenticated') === 'true') {
+            window.location.href = 'index.html';
+        }
+
+        // ✅ CREDENCIALES DE DEMOSTRACIÓN
+        const validCredentials = {
+            'piloto': {
+                password: 'f1racing2024',
+                role: 'piloto',
+                nombre: 'Piloto Oficial'
+            },
+            'admin': {
+                password: 'admin123',
+                role: 'admin',
+                nombre: 'Administrador'
+            },
+            'mecanico': {
+                password: 'mecanico123',
+                role: 'mecanico',
+                nombre: 'Mecánico'
+            }
+        };
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const alertError = document.getElementById('alertError');
+            const alertSuccess = document.getElementById('alertSuccess');
+            const loading = document.getElementById('loading');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            // Ocultar alertas anteriores
+            alertError.style.display = 'none';
+            alertSuccess.style.display = 'none';
+            
+            // Mostrar loading
+            loading.style.display = 'block';
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Verificando...';
+            
+            // Simular verificación
+            setTimeout(() => {
+                // Verificar credenciales
+                if (validCredentials[username] && validCredentials[username].password === password) {
+                    // ✅ LOGIN EXITOSO
+                    alertSuccess.textContent = '✅ Login exitoso. Redirigiendo...';
+                    alertSuccess.style.display = 'block';
+                    
+                    // Guardar en localStorage
+                    localStorage.setItem('userAuthenticated', 'true');
+                    localStorage.setItem('userRole', validCredentials[username].role);
+                    localStorage.setItem('username', validCredentials[username].nombre);
+                    
+                    // Redirigir después de 1 segundo
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                    
+                } else {
+                    // ❌ LOGIN FALLIDO
+                    alertError.textContent = '❌ Credenciales incorrectas. Intenta con: piloto / f1racing2024';
+                    alertError.style.display = 'block';
+                }
+                
+                // Ocultar loading
+                loading.style.display = 'none';
+                loginBtn.disabled = false;
+                loginBtn.textContent = '🏎️ Ingresar al Sistema';
+            }, 1500);
+        });
+
+        // Efectos de focus en inputs
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.style.borderColor = '#ff0000';
+                this.style.boxShadow = '0 0 10px rgba(255, 0, 0, 0.3)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.style.borderColor = '#333';
+                this.style.boxShadow = 'none';
+            });
+        });
+
+        // Auto-rellenar credenciales de demo para facilitar pruebas
+        window.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('username').value = 'piloto';
+            document.getElementById('password').value = 'f1racing2024';
+        });
+    </script>
+</body>
+</html>

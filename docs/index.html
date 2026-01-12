@@ -1,0 +1,2430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema F1 - Scuderia Alpha Racing</title>
+    <style>
+        /* ========== ESTILOS COMPLETOS (igual que antes) ========== */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f0f0f;
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+            position: relative;
+        }
+        
+        .container::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.9)),
+                        url('https://images.unsplash.com/photo-1580273916550-e323be2ae537?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(26, 26, 26, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #333;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #000000 0%, #ff0000 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 { 
+            font-size: 2.5em; 
+            margin-bottom: 10px; 
+        }
+        
+        .menu { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px; 
+            padding: 30px; 
+            background: #111;
+        }
+        
+        .menu-item {
+            background: #1a1a1a; 
+            padding: 25px; 
+            border-radius: 8px; 
+            cursor: pointer;
+            border-left: 4px solid #ff0000; 
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            transform: translateY(-3px); 
+            background: #222;
+            box-shadow: 0 5px 15px rgba(255,0,0,0.2);
+        }
+        
+        .content { 
+            padding: 30px; 
+            display: none; 
+            background: #000; 
+            min-height: 500px; 
+        }
+        
+        .content.active { 
+            display: block; 
+        }
+        
+        .back-btn { 
+            margin-bottom: 20px; 
+            padding: 12px 20px; 
+            background: #ff0000; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+        }
+        
+        .btn {
+            padding: 8px 16px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer;
+            font-size: 14px; 
+            margin: 2px; 
+            transition: all 0.3s ease;
+        }
+        
+        .btn-edit { background: #ffc107; color: black; }
+        .btn-delete { background: #dc3545; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+            border: 1px solid #333;
+            border-radius: 8px;
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            background: #000; 
+            min-width: 600px;
+        }
+        
+        th, td { 
+            padding: 12px; 
+            text-align: left; 
+            border-bottom: 1px solid #333; 
+        }
+        
+        th { 
+            background: #ff0000; 
+            color: white; 
+            position: sticky; 
+            top: 0; 
+        }
+        
+        tr:hover { background: #1a1a1a; }
+        tr:nth-child(even) { background: #111; }
+        
+        .form-container {
+            background: #111; 
+            padding: 25px; 
+            border-radius: 8px; 
+            margin-bottom: 25px; 
+            border: 1px solid #333;
+        }
+        
+        .form-row {
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px; 
+            margin-bottom: 15px;
+        }
+        
+        .form-group { 
+            margin-bottom: 15px; 
+        }
+        
+        .form-group label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            color: #ffffff; 
+        }
+        
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%; 
+            padding: 12px; 
+            background: #000; 
+            border: 1px solid #333; 
+            border-radius: 5px; 
+            font-size: 16px; 
+            color: white;
+        }
+        
+        .form-group input:focus, 
+        .form-group select:focus {
+            border-color: #ff0000; 
+            outline: none;
+        }
+        
+        .section-title {
+            color: #ff0000; 
+            margin-bottom: 20px; 
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert {
+            padding: 12px; 
+            margin: 15px 0; 
+            border-radius: 5px; 
+            display: none;
+        }
+        
+        .alert-success { background: #155724; color: #d4edda; border: 1px solid #c3e6cb; }
+        .alert-error { background: #721c24; color: #f8d7da; border: 1px solid #f5c6cb; }
+        
+        .actions-cell { 
+            white-space: nowrap; 
+        }
+        
+        .record-count {
+            background: #333;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #ccc;
+        }
+        
+        .search-bar {
+            background: #111;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .search-bar input,
+        .search-bar select {
+            padding: 10px;
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 5px;
+            color: white;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .user-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 0, 0, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #ff0000;
+            color: white;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .user-container span {
+            margin-right: 10px;
+        }
+        
+        /* ========== MEDIA QUERIES ========== */
+        @media screen and (max-width: 1024px) {
+            body { padding: 15px; }
+            .container { border-radius: 15px; }
+            .header { padding: 25px; }
+            .header h1 { font-size: 2.2em; }
+            .menu { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+        }
+        
+        @media screen and (max-width: 768px) {
+            body { padding: 10px; }
+            .header { padding: 20px; }
+            .header h1 { font-size: 1.8em; }
+            .menu { grid-template-columns: 1fr; }
+            .section-title { flex-direction: column; }
+            .search-bar { flex-direction: column; }
+        }
+        
+        @media screen and (max-width: 576px) {
+            body { padding: 5px; }
+            .header h1 { font-size: 1.5em; }
+            .container { border-radius: 10px; }
+            .menu-item { padding: 15px; }
+            th, td { padding: 8px; font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- INTERFAZ DE USUARIO -->
+    <div class="user-container" id="userContainer">
+        <span id="userInfo">👤 Cargando...</span>
+        <button class="btn" id="logoutBtn" style="background: #dc3545; padding: 5px 10px; font-size: 12px;">
+            🚪 Cerrar Sesión
+        </button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Scuderia Alpha Racing</h1>
+            <p>Sistema de Gestión Completo del Equipo F1</p>
+        </div>
+        
+        <!-- MENÚ PRINCIPAL -->
+        <div class="menu" id="mainMenu">
+            <div class="menu-item" onclick="showSection('equipo')">
+                <h3>🏎️ Información del Equipo</h3>
+                <p>Configuración general del equipo</p>
+            </div>
+            <div class="menu-item" onclick="showSection('pilotos')">
+                <h3>👤 Gestión de Pilotos</h3>
+                <p>Pilotos, contratos y licencias</p>
+            </div>
+            <div class="menu-item" onclick="showSection('autos')">
+                <h3>🚗 Flota de Autos</h3>
+                <p>Vehículos y especificaciones</p>
+            </div>
+            <div class="menu-item" onclick="showSection('mantenimiento')">
+                <h3>🔧 Mantenimiento</h3>
+                <p>Control de mantenimiento y reparaciones</p>
+            </div>
+            <div class="menu-item" onclick="showSection('circuitos')">
+                <h3>📍 Circuitos</h3>
+                <p>Circuitos y configuraciones</p>
+            </div>
+            <div class="menu-item" onclick="showSection('carreras')">
+                <h3>🏁 Carreras</h3>
+                <p>Calendario y eventos</p>
+            </div>
+            <div class="menu-item" onclick="showSection('participaciones')">
+                <h3>📊 Participaciones</h3>
+                <p>Asignaciones de pilotos y autos</p>
+            </div>
+            <div class="menu-item" onclick="showSection('resultados')">
+                <h3>🏆 Resultados</h3>
+                <p>Resultados y clasificaciones</p>
+            </div>
+        </div>
+        
+        <!-- ========== SECCIÓN EQUIPO ========== -->
+        <div id="equipo" class="content">
+            <button class="back-btn" onclick="showSection('menu')">← Volver al Menú</button>
+            <h2 class="section-title">INFORMACIÓN DEL EQUIPO</h2>
+            <div class="alert" id="alertEquipo"></div>
+            
+            <div class="form-container">
+                <h3 style="color: #ff0000;">Configurar Información del Equipo</h3>
+                <form id="formEquipo" onsubmit="guardarEquipo(event)">
+                    <input type="hidden" id="id_equipo" name="id_equipo">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nombre_equipo">Nombre del Equipo *</label>
+                            <input type="text" id="nombre_equipo" name="nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="pais_equipo">País *</label>
+                            <input type="text" id="pais_equipo" name="pais" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fundacion_equipo">Año de Fundación *</label>
+                            <input type="number" id="fundacion_equipo" name="fundacion" min="1950" max="2024" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="presupuesto_equipo">Presupuesto Anual (USD) *</label>
+                            <input type="number" id="presupuesto_equipo" name="presupuesto_anual" min="0" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="director_tecnico">Director Técnico</label>
+                            <input type="text" id="director_tecnico" name="director_tecnico">
+                        </div>
+                        <div class="form-group">
+                            <label for="sede_principal">Sede Principal</label>
+                            <input type="text" id="sede_principal" name="sede_principal">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">Guardar Configuración</button>
+                </form>
+            </div>
+            
+            <div class="table-container">
+                <div id="tablaEquipo"></div>
+            </div>
+        </div>
+        
+        <!-- ========== SECCIÓN PILOTOS ========== -->
+        <div id="pilotos" class="content">
+            <button class="back-btn" onclick="showSection('menu')">← Volver al Menú</button>
+            <h2 class="section-title">GESTIÓN DE PILOTOS <span class="record-count" id="countPilotos">0 registros</span></h2>
+            <div class="alert" id="alertPilotos"></div>
+            
+            <div class="search-bar">
+                <input type="text" id="searchPiloto" placeholder="Buscar piloto..." onkeyup="filtrarPilotos()">
+                <select id="filterTipoPiloto" onchange="filtrarPilotos()">
+                    <option value="">Todos los tipos</option>
+                    <option value="Titular">Titular</option>
+                    <option value="Reserva">Reserva</option>
+                    <option value="Desarrollo">Desarrollo</option>
+                </select>
+            </div>
+            
+            <div class="form-container">
+                <h3 style="color: #ff0000;" id="tituloFormPiloto">Agregar Nuevo Piloto</h3>
+                <form id="formPiloto" onsubmit="guardarPiloto(event)">
+                    <input type="hidden" id="id_piloto" name="id_piloto">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nombre_piloto">Nombre Completo *</label>
+                            <input type="text" id="nombre_piloto" name="nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="nacionalidad_piloto">Nacionalidad *</label>
+                            <input type="text" id="nacionalidad_piloto" name="nacionalidad" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fecha_nacimiento_piloto">Fecha de Nacimiento *</label>
+                            <input type="date" id="fecha_nacimiento_piloto" name="fecha_nacimiento" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="licencia_fia">Licencia FIA *</label>
+                            <input type="text" id="licencia_fia" name="licencia_fia" placeholder="FIA-001" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tipo_piloto">Tipo de Piloto *</label>
+                            <select id="tipo_piloto" name="tipo_piloto" required>
+                                <option value="">Seleccione</option>
+                                <option value="Titular">Piloto Titular</option>
+                                <option value="Reserva">Piloto de Reserva</option>
+                                <option value="Desarrollo">Piloto de Desarrollo</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="numero_competition">Número de Competencia</label>
+                            <input type="number" id="numero_competition" name="numero_competition" min="1" max="99">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success" id="btnGuardarPiloto">Guardar Piloto</button>
+                    <button type="button" class="btn btn-secondary" onclick="cancelarEdicionPiloto()" style="display:none;" id="btnCancelarPiloto">Cancelar</button>
+                </form>
+            </div>
+            
+            <div class="table-container">
+                <div id="tablaPilotos"></div>
+            </div>
+        </div>
+        
+        <!-- ========== SECCIÓN AUTOS ========== -->
+        <div id="autos" class="content">
+            <button class="back-btn" onclick="showSection('menu')">← Volver al Menú</button>
+            <h2 class="section-title">FLOTA DE AUTOS <span class="record-count" id="countAutos">0 registros</span></h2>
+            <div class="alert" id="alertAutos"></div>
+            
+            <div class="search-bar">
+                <input type="text" id="searchAuto" placeholder="Buscar por chasis o modelo..." onkeyup="filtrarAutos()">
+                <select id="filterTipoAuto" onchange="filtrarAutos()">
+                    <option value="">Todos los tipos</option>
+                    <option value="Competencia">Competencia</option>
+                    <option value="Pruebas">Pruebas</option>
+                    <option value="Reserva">Reserva</option>
+                </select>
+            </div>
+            
+            <div class="form-container">
+                <h3 style="color: #ff0000;" id="tituloFormAuto">Agregar Nuevo Auto</h3>
+                <form id="formAuto" onsubmit="guardarAuto(event)">
+                    <input type="hidden" id="chasis_auto_original" name="chasis_auto_original">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="chasis_auto">Chasis *</label>
+                            <input type="text" id="chasis_auto" name="chasis_auto" placeholder="CH-001" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="modelo">Modelo *</label>
+                            <input type="text" id="modelo" name="modelo" placeholder="Alpha-RS25" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="motor">Motor *</label>
+                            <input type="text" id="motor" name="motor" placeholder="V6 Turbo Híbrido" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ano">Año *</label>
+                            <input type="number" id="ano" name="ano" min="2000" max="2024" value="2024" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tipo_auto">Tipo de Auto *</label>
+                            <select id="tipo_auto" name="tipo_auto" required>
+                                <option value="">Seleccione</option>
+                                <option value="Competencia">Competencia</option>
+                                <option value="Pruebas">Pruebas</option>
+                                <option value="Reserva">Reserva</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="numero_competition_auto">Número de Competencia</label>
+                            <input type="number" id="numero_competition_auto" name="numero_competition" min="1" max="99">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success" id="btnGuardarAuto">Guardar Auto</button>
+                    <button type="button" class="btn btn-secondary" onclick="cancelarEdicionAuto()" style="display:none;" id="btnCancelarAuto">Cancelar</button>
+                </form>
+            </div>
+            
+            <div class="table-container">
+                <div id="tablaAutos"></div>
+            </div>
+        </div>
+        
+        <!-- ========== SECCIÓN MANTENIMIENTO ========== -->
+        <div id="mantenimiento" class="content">
+            <button class="back-btn" onclick="showSection('menu')">← Volver al Menú</button>
+            <h2 class="section-title">MANTENIMIENTO DE AUTOS <span class="record-count" id="countMantenimiento">0 registros</span></h2>
+            <div class="alert" id="alertMantenimiento"></div>
+            
+            <div class="search-bar">
+                <input type="text" id="searchMantenimiento" placeholder="Buscar por chasis o técnico..." onkeyup="filtrarMantenimiento()">
+                <select id="filterTipoMantenimiento" onchange="filtrarMantenimiento()">
+                    <option value="">Todos los tipos</option>
+                    <option value="Preventivo">Preventivo</option>
+                    <option value="Correctivo">Correctivo</option>
+                    <option value="Programado">Programado</option>
+                    <option value="Emergencia">Emergencia</option>
+                </select>
+            </div>
+            
+            <div class="form-container">
+                <h3 style="color: #ff0000;" id="tituloFormMantenimiento">Agregar Nuevo Mantenimiento</h3>
+                <form id="formMantenimiento" onsubmit="guardarMantenimiento(event)">
+                    <input type="hidden" id="id_mantenimiento" name="id_mantenimiento">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="chasis_auto_mantenimiento">Chasis del Auto *</label>
+                            <select id="chasis_auto_mantenimiento" name="chasis_auto" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fecha_mantenimiento">Fecha de Mantenimiento *</label>
+                            <input type="date" id="fecha_mantenimiento" name="fecha_mantenimiento" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tipo_mantenimiento">Tipo de Mantenimiento *</label>
+                            <select id="tipo_mantenimiento" name="tipo" required>
+                                <option value="">Seleccione</option>
+                                <option value="Preventivo">Preventivo</option>
+                                <option value="Correctivo">Correctivo</option>
+                                <option value="Programado">Programado</option>
+                                <option value="Emergencia">Emergencia</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="tecnico_responsable">Técnico Responsable *</label>
+                            <input type="text" id="tecnico_responsable" name="tecnico_responsable" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success" id="btnGuardarMantenimiento">Guardar Mantenimiento</button>
+                    <button type="button" class="btn btn-secondary" onclick="cancelarEdicionMantenimiento()" style="display:none;" id="btnCancelarMantenimiento">Cancelar</button>
+                </form>
+            </div>
+            
+            <div class="table-container">
+                <div id="tablaMantenimiento"></div>
+            </div>
+        </div>
+        
+        <!-- ========== SECCIÓN CIRCUITOS ========== -->
+        <div id="circuitos" class="content">
+            <button class="back-btn" onclick="showSection('menu')">← Volver al Menú</button>
+            <h2 class="section-title">CIRCUITOS <span class="record-count" id="countCircuitos">0 registros</span></h2>
+            <div class="alert" id="alertCircuitos"></div>
+            
+            <div class="search-bar">
+                <input type="text" id="searchCircuito" placeholder="Buscar circuito..." onkeyup="filtrarCircuitos()">
+            </div>
+            
+            <div class="form-container">
+                <h3 style="color: #ff0000;" id="tituloFormCircuito">Agregar Nuevo Circuito</h3>
+                <form id="formCircuito" onsubmit="guardarCircuito(event)">
+                    <input type="hidden" id="id_circuito" name="id_circuito">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nombre_circuito">Nombre del Circuito *</label>
+                            <input type="text" id="nombre_circuito" name="nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="pais_circuito">País *</label>
+                            <input type="text" id="pais_circuito" name="pais" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="longitud_km">Longitud (km) *</label>
+                            <input type="number" id="longitud_km" name="longitud_km" step="0.001" min="1" max="10" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="numero_curvas">Número de Curvas *</label>
+                            <input type="number" id="numero_curvas" name="numero_curvas" min="1" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success" id="btnGuardarCircuito">Guardar Circuito</button>
+                    <button type="button" class="btn btn-secondary" onclick="cancelarEdicionCircuito()" style="display:none;" id="btnCancelarCircuito">Cancelar</button>
+                </form>
+            </div>
+            
+            <div class="table-container">
+                <div id="tablaCircuitos"></div>
+            </div>
+        </div>
+        
+        <!-- ========== SECCIÓN CARRERAS ========== -->
+        <div id="carreras" class="content">
+            <button class="back-btn" onclick="showSection('menu')">← Volver al Menú</button>
+            <h2 class="section-title">CARRERAS <span class="record-count" id="countCarreras">0 registros</span></h2>
+            <div class="alert" id="alertCarreras"></div>
+            
+            <div class="search-bar">
+                <input type="text" id="searchCarrera" placeholder="Buscar carrera..." onkeyup="filtrarCarreras()">
+            </div>
+            
+            <div class="form-container">
+                <h3 style="color: #ff0000;" id="tituloFormCarrera">Agregar Nueva Carrera</h3>
+                <form id="formCarrera" onsubmit="guardarCarrera(event)">
+                    <input type="hidden" id="id_carrera" name="id_carrera">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nombre_carrera">Nombre de la Carrera *</label>
+                            <input type="text" id="nombre_carrera" name="nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fecha_carrera">Fecha de la Carrera *</label>
+                            <input type="date" id="fecha_carrera" name="fecha" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success" id="btnGuardarCarrera">Guardar Carrera</button>
+                    <button type="button" class="btn btn-secondary" onclick="cancelarEdicionCarrera()" style="display:none;" id="btnCancelarCarrera">Cancelar</button>
+                </form>
+            </div>
+            
+            <div class="table-container">
+                <div id="tablaCarreras"></div>
+            </div>
+        </div>
+        
+        <!-- ========== SECCIÓN PARTICIPACIONES ========== -->
+        <div id="participaciones" class="content">
+            <button class="back-btn" onclick="showSection('menu')">← Volver al Menú</button>
+            <h2 class="section-title">PARTICIPACIONES <span class="record-count" id="countParticipaciones">0 registros</span></h2>
+            <div class="alert" id="alertParticipaciones"></div>
+            
+            <div class="form-container">
+                <h3 style="color: #ff0000;" id="tituloFormParticipacion">Agregar Nueva Participación</h3>
+                <form id="formParticipacion" onsubmit="guardarParticipacion(event)">
+                    <input type="hidden" id="id_participacion" name="id_participacion">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="piloto_participacion">Piloto *</label>
+                            <select id="piloto_participacion" name="piloto" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="auto_participacion">Auto *</label>
+                            <select id="auto_participacion" name="auto" required></select>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success" id="btnGuardarParticipacion">Guardar Participación</button>
+                    <button type="button" class="btn btn-secondary" onclick="cancelarEdicionParticipacion()" style="display:none;" id="btnCancelarParticipacion">Cancelar</button>
+                </form>
+            </div>
+            
+            <div class="table-container">
+                <div id="tablaParticipaciones"></div>
+            </div>
+        </div>
+        
+        <!-- ========== SECCIÓN RESULTADOS ========== -->
+        <div id="resultados" class="content">
+            <button class="back-btn" onclick="showSection('menu')">← Volver al Menú</button>
+            <h2 class="section-title">RESULTADOS <span class="record-count" id="countResultados">0 registros</span></h2>
+            <div class="alert" id="alertResultados"></div>
+            
+            <div class="form-container">
+                <h3 style="color: #ff0000;" id="tituloFormResultado">Agregar Nuevo Resultado</h3>
+                <form id="formResultado" onsubmit="guardarResultado(event)">
+                    <input type="hidden" id="id_resultado" name="id_resultado">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="piloto_resultado">Piloto *</label>
+                            <select id="piloto_resultado" name="piloto" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="posicion_resultado">Posición *</label>
+                            <input type="number" id="posicion_resultado" name="posicion" min="1" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success" id="btnGuardarResultado">Guardar Resultado</button>
+                    <button type="button" class="btn btn-secondary" onclick="cancelarEdicionResultado()" style="display:none;" id="btnCancelarResultado">Cancelar</button>
+                </form>
+            </div>
+            
+            <div class="table-container">
+                <div id="tablaResultados"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== DATOS SIMULADOS COMPLETOS ==========
+        let datosSimulados = {
+            equipo: [
+                {
+                    id_equipo: 1,
+                    nombre: "Scuderia Alpha Racing",
+                    pais: "Italia",
+                    fundacion: 2020,
+                    presupuesto_anual: 150000000,
+                    director_tecnico: "James Wilson",
+                    sede_principal: "Marranello, Italia"
+                }
+            ],
+            pilotos: [
+                {
+                    id_piloto: 1,
+                    nombre: "Carlos Rodríguez",
+                    nacionalidad: "España",
+                    fecha_nacimiento: "1995-06-15",
+                    licencia_fia: "FIA-001",
+                    tipo_piloto: "Titular",
+                    numero_competition: 14,
+                    experiencia_anos: 8,
+                    sueldo_base: 5000000,
+                    fecha_contrato_inicio: "2023-01-01",
+                    fecha_contrato_fin: "2025-12-31"
+                },
+                {
+                    id_piloto: 2,
+                    nombre: "Alexandre Dubois",
+                    nacionalidad: "Francia",
+                    fecha_nacimiento: "1998-03-22",
+                    licencia_fia: "FIA-002",
+                    tipo_piloto: "Titular",
+                    numero_competition: 23,
+                    experiencia_anos: 5,
+                    sueldo_base: 3000000,
+                    fecha_contrato_inicio: "2024-01-01",
+                    fecha_contrato_fin: "2026-12-31"
+                },
+                {
+                    id_piloto: 3,
+                    nombre: "Marcus Chen",
+                    nacionalidad: "China",
+                    fecha_nacimiento: "2000-11-08",
+                    licencia_fia: "FIA-003",
+                    tipo_piloto: "Reserva",
+                    numero_competition: 88,
+                    experiencia_anos: 2,
+                    sueldo_base: 800000,
+                    fecha_contrato_inicio: "2024-06-01",
+                    fecha_contrato_fin: "2025-05-31"
+                }
+            ],
+            autos: [
+                {
+                    chasis_auto: "CH-001",
+                    modelo: "Alpha-RS25",
+                    motor: "V6 Turbo Híbrido 1.6L",
+                    año: 2024,
+                    tipo_auto: "Competencia",
+                    numero_competition: 14,
+                    estado_actual: "Disponible",
+                    fecha_fabricacion: "2024-01-15",
+                    especificaciones_tecnicas: "Alerón trasero ajustable, suspensión push-rod"
+                },
+                {
+                    chasis_auto: "CH-002",
+                    modelo: "Alpha-RS25",
+                    motor: "V6 Turbo Híbrido 1.6L",
+                    año: 2024,
+                    tipo_auto: "Competencia",
+                    numero_competition: 23,
+                    estado_actual: "Mantenimiento",
+                    fecha_fabricacion: "2024-02-10",
+                    especificaciones_tecnicas: "Sistema ERS mejorado, frenos carbono-cerámicos"
+                },
+                {
+                    chasis_auto: "CH-003",
+                    modelo: "Alpha-TS24",
+                    motor: "V6 Turbo Híbrido 1.6L",
+                    año: 2024,
+                    tipo_auto: "Pruebas",
+                    numero_competition: null,
+                    estado_actual: "Disponible",
+                    fecha_fabricacion: "2024-03-05",
+                    especificaciones_tecnicas: "Chasis de pruebas, instrumentación avanzada"
+                }
+            ],
+            mantenimiento: [
+                {
+                    id_mantenimiento: 1,
+                    chasis_auto: "CH-002",
+                    fecha_mantenimiento: "2024-05-15",
+                    tipo: "Correctivo",
+                    descripcion: "Cambio de motor completo tras fallo en carrera",
+                    duracion_horas: 48,
+                    costo_estimado: 250000,
+                    tecnico_responsable: "Giovanni Rossi"
+                },
+                {
+                    id_mantenimiento: 2,
+                    chasis_auto: "CH-001",
+                    fecha_mantenimiento: "2024-06-01",
+                    tipo: "Preventivo",
+                    descripcion: "Revisión general pre-carrera",
+                    duracion_horas: 12,
+                    costo_estimado: 15000,
+                    tecnico_responsable: "María García"
+                }
+            ],
+            circuitos: [
+                {
+                    id_circuito: 1,
+                    nombre: "Circuito de Mónaco",
+                    pais: "Mónaco",
+                    longitud_km: 3.337,
+                    record_vuelta: "01:12:909",
+                    tipo_circuito: "Circuito Callejero",
+                    numero_curvas: 19,
+                    capacidad_espectadores: 35000
+                },
+                {
+                    id_circuito: 2,
+                    nombre: "Circuito de Silverstone",
+                    pais: "Reino Unido",
+                    longitud_km: 5.891,
+                    record_vuelta: "01:27:097",
+                    tipo_circuito: "Permanente",
+                    numero_curvas: 18,
+                    capacidad_espectadores: 150000
+                }
+            ],
+            carreras: [
+                {
+                    id_carrera: 1,
+                    id_circuito: 1,
+                    nombre: "Gran Premio de Mónaco",
+                    fecha: "2024-05-26",
+                    temporada: 2024,
+                    vueltas_planificadas: 78,
+                    condiciones_climaticas: "Despejado"
+                },
+                {
+                    id_carrera: 2,
+                    id_circuito: 2,
+                    nombre: "Gran Premio de Gran Bretaña",
+                    fecha: "2024-07-07",
+                    temporada: 2024,
+                    vueltas_planificadas: 52,
+                    condiciones_climaticas: "Nublado"
+                }
+            ],
+            participaciones: [
+                {
+                    id_participacion: 1,
+                    id_piloto: 1,
+                    chasis_auto: "CH-001",
+                    id_carrera: 1,
+                    posicion_salida: 5,
+                    estrategia_neumaticos: "Soft-Medium-Hard",
+                    nombre_piloto: "Carlos Rodríguez",
+                    modelo: "Alpha-RS25",
+                    nombre_carrera: "Gran Premio de Mónaco",
+                    fecha_creacion: "2024-05-25 10:30:00"
+                },
+                {
+                    id_participacion: 2,
+                    id_piloto: 2,
+                    chasis_auto: "CH-002",
+                    id_carrera: 1,
+                    posicion_salida: 8,
+                    estrategia_neumaticos: "Medium-Hard-Soft",
+                    nombre_piloto: "Alexandre Dubois",
+                    modelo: "Alpha-RS25",
+                    nombre_carrera: "Gran Premio de Mónaco",
+                    fecha_creacion: "2024-05-25 11:15:00"
+                }
+            ],
+            resultados: [
+                {
+                    id_resultado: 1,
+                    id_participacion: 1,
+                    tipo_sesion: "Carrera",
+                    posicion_final: 4,
+                    puntos_obtenidos: 12,
+                    tiempo_total: "01:33:45.678",
+                    vueltas_completadas: 78,
+                    estado_carrera: "Completado",
+                    motivo_abandono: null,
+                    vuelta_rapida: "01:15.234",
+                    nombre_piloto: "Carlos Rodríguez",
+                    nombre_carrera: "Gran Premio de Mónaco"
+                },
+                {
+                    id_resultado: 2,
+                    id_participacion: 2,
+                    tipo_sesion: "Carrera",
+                    posicion_final: 6,
+                    puntos_obtenidos: 8,
+                    tiempo_total: "01:34:12.345",
+                    vueltas_completadas: 78,
+                    estado_carrera: "Completado",
+                    motivo_abandono: null,
+                    vuelta_rapida: "01:15.567",
+                    nombre_piloto: "Alexandre Dubois",
+                    nombre_carrera: "Gran Premio de Mónaco"
+                }
+            ]
+        };
+
+        // ========== VARIABLES GLOBALES ==========
+        let currentSection = '';
+        let editId = null;
+
+        // ========== FUNCIONES DE AUTENTICACIÓN ==========
+        function verificarAutenticacion() {
+            if (localStorage.getItem('userAuthenticated') !== 'true') {
+                window.location.href = 'login.html';
+                return false;
+            }
+            return true;
+        }
+
+        function actualizarInterfazUsuario() {
+            const username = localStorage.getItem('username') || 'Usuario';
+            const userRole = localStorage.getItem('userRole') || 'Usuario';
+            document.getElementById('userInfo').textContent = `👤 ${username} (${userRole})`;
+        }
+
+        function logout() {
+            if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                localStorage.removeItem('userAuthenticated');
+                localStorage.removeItem('userRole');
+                localStorage.removeItem('username');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // ========== FUNCIONES DE NAVEGACIÓN ==========
+        function showSection(section) {
+            if (!verificarAutenticacion()) return;
+            
+            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+            
+            if (section === 'menu') {
+                document.getElementById('mainMenu').style.display = 'grid';
+                currentSection = '';
+            } else {
+                document.getElementById('mainMenu').style.display = 'none';
+                const contentDiv = document.getElementById(section);
+                if (contentDiv) {
+                    contentDiv.classList.add('active');
+                    currentSection = section;
+                    
+                    // Cargar datos según la sección
+                    setTimeout(() => {
+                        switch(section) {
+                            case 'equipo': 
+                                cargarEquipo();
+                                break;
+                            case 'pilotos': 
+                                cargarPilotos();
+                                cargarSelectPilotos();
+                                break;
+                            case 'autos': 
+                                cargarAutos();
+                                cargarSelectAutos();
+                                break;
+                            case 'mantenimiento': 
+                                cargarMantenimiento();
+                                cargarSelectAutos();
+                                break;
+                            case 'circuitos': 
+                                cargarCircuitos();
+                                break;
+                            case 'carreras': 
+                                cargarCarreras();
+                                break;
+                            case 'participaciones': 
+                                cargarParticipaciones();
+                                cargarSelectPilotos();
+                                cargarSelectAutos();
+                                break;
+                            case 'resultados': 
+                                cargarResultados();
+                                cargarSelectPilotos();
+                                break;
+                        }
+                    }, 100);
+                }
+            }
+        }
+
+        // ========== FUNCIONES COMUNES ==========
+        function mostrarAlerta(seccion, mensaje, tipo) {
+            const alertDiv = document.getElementById(`alert${seccion.charAt(0).toUpperCase() + seccion.slice(1)}`);
+            if (alertDiv) {
+                alertDiv.textContent = mensaje;
+                alertDiv.className = `alert alert-${tipo}`;
+                alertDiv.style.display = 'block';
+                
+                setTimeout(() => {
+                    alertDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function resetForm(formId) {
+            const form = document.getElementById(formId);
+            if (form) {
+                form.reset();
+                editId = null;
+                
+                // Restaurar botones a estado normal
+                const guardarBtn = form.querySelector('.btn-success');
+                const cancelarBtn = form.querySelector('.btn-secondary');
+                const titulo = form.querySelector('h3');
+                
+                if (guardarBtn) guardarBtn.textContent = 'Guardar ' + guardarBtn.textContent.replace('Actualizar ', '').replace('Guardar ', '');
+                if (cancelarBtn) cancelarBtn.style.display = 'none';
+                if (titulo) titulo.textContent = 'Agregar Nuevo ' + titulo.textContent.replace('Editar ', '').replace('Agregar Nuevo ', '');
+            }
+        }
+
+        // ========== FUNCIONES PARA EQUIPO ==========
+        function cargarEquipo() {
+            const equipo = datosSimulados.equipo[0];
+            if (equipo) {
+                document.getElementById('id_equipo').value = equipo.id_equipo;
+                document.getElementById('nombre_equipo').value = equipo.nombre;
+                document.getElementById('pais_equipo').value = equipo.pais;
+                document.getElementById('fundacion_equipo').value = equipo.fundacion;
+                document.getElementById('presupuesto_equipo').value = equipo.presupuesto_anual;
+                document.getElementById('director_tecnico').value = equipo.director_tecnico;
+                document.getElementById('sede_principal').value = equipo.sede_principal;
+            }
+            
+            // Mostrar tabla
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>País</th>
+                            <th>Fundación</th>
+                            <th>Presupuesto</th>
+                            <th>Director</th>
+                            <th>Sede</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            datosSimulados.equipo.forEach(e => {
+                html += `
+                    <tr>
+                        <td>${e.id_equipo}</td>
+                        <td><strong>${e.nombre}</strong></td>
+                        <td>${e.pais}</td>
+                        <td>${e.fundacion}</td>
+                        <td>$${e.presupuesto_anual.toLocaleString()}</td>
+                        <td>${e.director_tecnico}</td>
+                        <td>${e.sede_principal}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `</tbody></table>`;
+            document.getElementById('tablaEquipo').innerHTML = html;
+        }
+
+        function guardarEquipo(event) {
+            event.preventDefault();
+            
+            const idEquipo = document.getElementById('id_equipo').value;
+            const nombre = document.getElementById('nombre_equipo').value;
+            const pais = document.getElementById('pais_equipo').value;
+            const fundacion = document.getElementById('fundacion_equipo').value;
+            const presupuesto = document.getElementById('presupuesto_equipo').value;
+            const director = document.getElementById('director_tecnico').value;
+            const sede = document.getElementById('sede_principal').value;
+            
+            if (idEquipo) {
+                // Actualizar
+                datosSimulados.equipo[0] = {
+                    id_equipo: parseInt(idEquipo),
+                    nombre,
+                    pais,
+                    fundacion: parseInt(fundacion),
+                    presupuesto_anual: parseFloat(presupuesto),
+                    director_tecnico: director,
+                    sede_principal: sede
+                };
+                mostrarAlerta('equipo', 'Equipo actualizado correctamente', 'success');
+            } else {
+                // Insertar nuevo
+                const nuevoId = datosSimulados.equipo.length + 1;
+                datosSimulados.equipo.push({
+                    id_equipo: nuevoId,
+                    nombre,
+                    pais,
+                    fundacion: parseInt(fundacion),
+                    presupuesto_anual: parseFloat(presupuesto),
+                    director_tecnico: director,
+                    sede_principal: sede
+                });
+                mostrarAlerta('equipo', 'Equipo agregado correctamente', 'success');
+            }
+            
+            setTimeout(() => {
+                cargarEquipo();
+                resetForm('formEquipo');
+            }, 1000);
+        }
+
+        // ========== FUNCIONES PARA PILOTOS ==========
+        function cargarPilotos() {
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Nacionalidad</th>
+                            <th>Licencia FIA</th>
+                            <th>Tipo</th>
+                            <th>Número</th>
+                            <th>Experiencia</th>
+                            <th>Contrato</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            if (datosSimulados.pilotos.length === 0) {
+                html += `<tr><td colspan="9" style="text-align: center;">No hay pilotos registrados</td></tr>`;
+            } else {
+                datosSimulados.pilotos.forEach(piloto => {
+                    const contrato = piloto.fecha_contrato_inicio ? 
+                        `${piloto.fecha_contrato_inicio.split('-').reverse().join('/')} al ${piloto.fecha_contrato_fin ? piloto.fecha_contrato_fin.split('-').reverse().join('/') : '--'}` : 
+                        'Sin contrato';
+                    
+                    html += `
+                        <tr>
+                            <td>${piloto.id_piloto}</td>
+                            <td><strong>${piloto.nombre}</strong></td>
+                            <td>${piloto.nacionalidad}</td>
+                            <td><code>${piloto.licencia_fia}</code></td>
+                            <td><span style="color: #ff0000;">${piloto.tipo_piloto}</span></td>
+                            <td>${piloto.numero_competition || 'N/A'}</td>
+                            <td>${piloto.experiencia_anos} años</td>
+                            <td>${contrato}</td>
+                            <td class="actions-cell">
+                                <button class="btn btn-edit" onclick="editarPiloto(${piloto.id_piloto})">Editar</button>
+                                <button class="btn btn-delete" onclick="eliminarPiloto(${piloto.id_piloto})">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            html += `</tbody></table>`;
+            document.getElementById('tablaPilotos').innerHTML = html;
+            document.getElementById('countPilotos').textContent = `${datosSimulados.pilotos.length} registros`;
+        }
+
+        function editarPiloto(id) {
+            const piloto = datosSimulados.pilotos.find(p => p.id_piloto === id);
+            if (piloto) {
+                // Llenar formulario
+                document.getElementById('id_piloto').value = piloto.id_piloto;
+                document.getElementById('nombre_piloto').value = piloto.nombre;
+                document.getElementById('nacionalidad_piloto').value = piloto.nacionalidad;
+                document.getElementById('fecha_nacimiento_piloto').value = piloto.fecha_nacimiento;
+                document.getElementById('licencia_fia').value = piloto.licencia_fia;
+                document.getElementById('tipo_piloto').value = piloto.tipo_piloto;
+                document.getElementById('numero_competition').value = piloto.numero_competition || '';
+                
+                // Cambiar interfaz
+                document.getElementById('tituloFormPiloto').textContent = 'Editar Piloto';
+                document.getElementById('btnGuardarPiloto').textContent = 'Actualizar Piloto';
+                document.getElementById('btnCancelarPiloto').style.display = 'inline-block';
+                editId = id;
+            }
+        }
+
+        function cancelarEdicionPiloto() {
+            resetForm('formPiloto');
+        }
+
+        function guardarPiloto(event) {
+            event.preventDefault();
+            
+            const idPiloto = document.getElementById('id_piloto').value;
+            const nombre = document.getElementById('nombre_piloto').value;
+            const nacionalidad = document.getElementById('nacionalidad_piloto').value;
+            const fechaNacimiento = document.getElementById('fecha_nacimiento_piloto').value;
+            const licencia = document.getElementById('licencia_fia').value;
+            const tipo = document.getElementById('tipo_piloto').value;
+            const numero = document.getElementById('numero_competition').value;
+            
+            if (!nombre || !nacionalidad || !fechaNacimiento || !licencia || !tipo) {
+                mostrarAlerta('pilotos', 'Por favor complete todos los campos obligatorios', 'error');
+                return;
+            }
+            
+            if (idPiloto) {
+                // Actualizar
+                const index = datosSimulados.pilotos.findIndex(p => p.id_piloto === parseInt(idPiloto));
+                if (index !== -1) {
+                    datosSimulados.pilotos[index] = {
+                        ...datosSimulados.pilotos[index],
+                        nombre,
+                        nacionalidad,
+                        fecha_nacimiento: fechaNacimiento,
+                        licencia_fia: licencia,
+                        tipo_piloto: tipo,
+                        numero_competition: numero ? parseInt(numero) : null
+                    };
+                    mostrarAlerta('pilotos', 'Piloto actualizado correctamente', 'success');
+                }
+            } else {
+                // Insertar nuevo
+                const nuevoId = datosSimulados.pilotos.length > 0 ? 
+                    Math.max(...datosSimulados.pilotos.map(p => p.id_piloto)) + 1 : 1;
+                
+                datosSimulados.pilotos.push({
+                    id_piloto: nuevoId,
+                    nombre,
+                    nacionalidad,
+                    fecha_nacimiento: fechaNacimiento,
+                    licencia_fia: licencia,
+                    tipo_piloto: tipo,
+                    numero_competition: numero ? parseInt(numero) : null,
+                    experiencia_anos: 0,
+                    sueldo_base: 0,
+                    fecha_contrato_inicio: null,
+                    fecha_contrato_fin: null
+                });
+                mostrarAlerta('pilotos', 'Piloto agregado correctamente', 'success');
+            }
+            
+            setTimeout(() => {
+                cargarPilotos();
+                resetForm('formPiloto');
+            }, 1000);
+        }
+
+        function eliminarPiloto(id) {
+            if (confirm('¿Estás seguro de eliminar este piloto?')) {
+                const index = datosSimulados.pilotos.findIndex(p => p.id_piloto === id);
+                if (index !== -1) {
+                    datosSimulados.pilotos.splice(index, 1);
+                    mostrarAlerta('pilotos', 'Piloto eliminado correctamente', 'success');
+                    setTimeout(() => cargarPilotos(), 500);
+                }
+            }
+        }
+
+        function filtrarPilotos() {
+            const searchTerm = document.getElementById('searchPiloto').value.toLowerCase();
+            const tipoFilter = document.getElementById('filterTipoPiloto').value;
+            
+            const filtered = datosSimulados.pilotos.filter(piloto => {
+                const matchesSearch = piloto.nombre.toLowerCase().includes(searchTerm) ||
+                                    piloto.licencia_fia.toLowerCase().includes(searchTerm);
+                const matchesType = !tipoFilter || piloto.tipo_piloto === tipoFilter;
+                return matchesSearch && matchesType;
+            });
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Nacionalidad</th>
+                            <th>Licencia FIA</th>
+                            <th>Tipo</th>
+                            <th>Número</th>
+                            <th>Experiencia</th>
+                            <th>Contrato</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            if (filtered.length === 0) {
+                html += `<tr><td colspan="9" style="text-align: center;">No se encontraron pilotos</td></tr>`;
+            } else {
+                filtered.forEach(piloto => {
+                    const contrato = piloto.fecha_contrato_inicio ? 
+                        `${piloto.fecha_contrato_inicio.split('-').reverse().join('/')} al ${piloto.fecha_contrato_fin ? piloto.fecha_contrato_fin.split('-').reverse().join('/') : '--'}` : 
+                        'Sin contrato';
+                    
+                    html += `
+                        <tr>
+                            <td>${piloto.id_piloto}</td>
+                            <td><strong>${piloto.nombre}</strong></td>
+                            <td>${piloto.nacionalidad}</td>
+                            <td><code>${piloto.licencia_fia}</code></td>
+                            <td><span style="color: #ff0000;">${piloto.tipo_piloto}</span></td>
+                            <td>${piloto.numero_competition || 'N/A'}</td>
+                            <td>${piloto.experiencia_anos} años</td>
+                            <td>${contrato}</td>
+                            <td class="actions-cell">
+                                <button class="btn btn-edit" onclick="editarPiloto(${piloto.id_piloto})">Editar</button>
+                                <button class="btn btn-delete" onclick="eliminarPiloto(${piloto.id_piloto})">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            html += `</tbody></table>`;
+            document.getElementById('tablaPilotos').innerHTML = html;
+            document.getElementById('countPilotos').textContent = `${filtered.length} registros`;
+        }
+
+        // ========== FUNCIONES PARA AUTOS ==========
+        function cargarAutos() {
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Chasis</th>
+                            <th>Modelo</th>
+                            <th>Motor</th>
+                            <th>Año</th>
+                            <th>Tipo</th>
+                            <th>Número</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            if (datosSimulados.autos.length === 0) {
+                html += `<tr><td colspan="8" style="text-align: center;">No hay autos registrados</td></tr>`;
+            } else {
+                datosSimulados.autos.forEach(auto => {
+                    const estadoColor = getEstadoColor(auto.estado_actual);
+                    html += `
+                        <tr>
+                            <td><code>${auto.chasis_auto}</code></td>
+                            <td><strong>${auto.modelo}</strong></td>
+                            <td>${auto.motor}</td>
+                            <td>${auto.año}</td>
+                            <td>${auto.tipo_auto}</td>
+                            <td>${auto.numero_competition || 'N/A'}</td>
+                            <td style="${estadoColor}">${auto.estado_actual}</td>
+                            <td class="actions-cell">
+                                <button class="btn btn-edit" onclick="editarAuto('${auto.chasis_auto}')">Editar</button>
+                                <button class="btn btn-delete" onclick="eliminarAuto('${auto.chasis_auto}')">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            html += `</tbody></table>`;
+            document.getElementById('tablaAutos').innerHTML = html;
+            document.getElementById('countAutos').textContent = `${datosSimulados.autos.length} registros`;
+        }
+
+        function getEstadoColor(estado) {
+            const colores = {
+                'Disponible': 'color: #28a745; font-weight: bold;',
+                'Mantenimiento': 'color: #ffc107; font-weight: bold;',
+                'Reparación': 'color: #dc3545; font-weight: bold;',
+                'Retirado': 'color: #6c757d; font-weight: bold;'
+            };
+            return colores[estado] || 'color: #ccc;';
+        }
+
+        function editarAuto(chasis) {
+            const auto = datosSimulados.autos.find(a => a.chasis_auto === chasis);
+            if (auto) {
+                document.getElementById('chasis_auto_original').value = auto.chasis_auto;
+                document.getElementById('chasis_auto').value = auto.chasis_auto;
+                document.getElementById('modelo').value = auto.modelo;
+                document.getElementById('motor').value = auto.motor;
+                document.getElementById('ano').value = auto.año;
+                document.getElementById('tipo_auto').value = auto.tipo_auto;
+                document.getElementById('numero_competition_auto').value = auto.numero_competition || '';
+                
+                document.getElementById('tituloFormAuto').textContent = 'Editar Auto';
+                document.getElementById('btnGuardarAuto').textContent = 'Actualizar Auto';
+                document.getElementById('btnCancelarAuto').style.display = 'inline-block';
+                editId = chasis;
+            }
+        }
+
+        function cancelarEdicionAuto() {
+            resetForm('formAuto');
+        }
+
+        function guardarAuto(event) {
+            event.preventDefault();
+            
+            const chasisOriginal = document.getElementById('chasis_auto_original').value;
+            const chasis = document.getElementById('chasis_auto').value;
+            const modelo = document.getElementById('modelo').value;
+            const motor = document.getElementById('motor').value;
+            const año = document.getElementById('ano').value;
+            const tipo = document.getElementById('tipo_auto').value;
+            const numero = document.getElementById('numero_competition_auto').value;
+            
+            if (!chasis || !modelo || !motor || !año || !tipo) {
+                mostrarAlerta('autos', 'Por favor complete todos los campos obligatorios', 'error');
+                return;
+            }
+            
+            if (chasisOriginal) {
+                // Actualizar
+                const index = datosSimulados.autos.findIndex(a => a.chasis_auto === chasisOriginal);
+                if (index !== -1) {
+                    datosSimulados.autos[index] = {
+                        ...datosSimulados.autos[index],
+                        chasis_auto: chasis,
+                        modelo,
+                        motor,
+                        año: parseInt(año),
+                        tipo_auto: tipo,
+                        numero_competition: numero ? parseInt(numero) : null
+                    };
+                    mostrarAlerta('autos', 'Auto actualizado correctamente', 'success');
+                }
+            } else {
+                // Insertar nuevo
+                datosSimulados.autos.push({
+                    chasis_auto: chasis,
+                    modelo,
+                    motor,
+                    año: parseInt(año),
+                    tipo_auto: tipo,
+                    numero_competition: numero ? parseInt(numero) : null,
+                    estado_actual: 'Disponible',
+                    fecha_fabricacion: null,
+                    especificaciones_tecnicas: ''
+                });
+                mostrarAlerta('autos', 'Auto agregado correctamente', 'success');
+            }
+            
+            setTimeout(() => {
+                cargarAutos();
+                resetForm('formAuto');
+            }, 1000);
+        }
+
+        function eliminarAuto(chasis) {
+            if (confirm('¿Estás seguro de eliminar este auto?')) {
+                const index = datosSimulados.autos.findIndex(a => a.chasis_auto === chasis);
+                if (index !== -1) {
+                    datosSimulados.autos.splice(index, 1);
+                    mostrarAlerta('autos', 'Auto eliminado correctamente', 'success');
+                    setTimeout(() => cargarAutos(), 500);
+                }
+            }
+        }
+
+        function filtrarAutos() {
+            const searchTerm = document.getElementById('searchAuto').value.toLowerCase();
+            const tipoFilter = document.getElementById('filterTipoAuto').value;
+            
+            const filtered = datosSimulados.autos.filter(auto => {
+                const matchesSearch = auto.chasis_auto.toLowerCase().includes(searchTerm) ||
+                                    auto.modelo.toLowerCase().includes(searchTerm);
+                const matchesType = !tipoFilter || auto.tipo_auto === tipoFilter;
+                return matchesSearch && matchesType;
+            });
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Chasis</th>
+                            <th>Modelo</th>
+                            <th>Motor</th>
+                            <th>Año</th>
+                            <th>Tipo</th>
+                            <th>Número</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            if (filtered.length === 0) {
+                html += `<tr><td colspan="8" style="text-align: center;">No se encontraron autos</td></tr>`;
+            } else {
+                filtered.forEach(auto => {
+                    const estadoColor = getEstadoColor(auto.estado_actual);
+                    html += `
+                        <tr>
+                            <td><code>${auto.chasis_auto}</code></td>
+                            <td><strong>${auto.modelo}</strong></td>
+                            <td>${auto.motor}</td>
+                            <td>${auto.año}</td>
+                            <td>${auto.tipo_auto}</td>
+                            <td>${auto.numero_competition || 'N/A'}</td>
+                            <td style="${estadoColor}">${auto.estado_actual}</td>
+                            <td class="actions-cell">
+                                <button class="btn btn-edit" onclick="editarAuto('${auto.chasis_auto}')">Editar</button>
+                                <button class="btn btn-delete" onclick="eliminarAuto('${auto.chasis_auto}')">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            html += `</tbody></table>`;
+            document.getElementById('tablaAutos').innerHTML = html;
+            document.getElementById('countAutos').textContent = `${filtered.length} registros`;
+        }
+
+        // ========== FUNCIONES PARA MANTENIMIENTO ==========
+        function cargarMantenimiento() {
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Chasis</th>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Duración</th>
+                            <th>Costo</th>
+                            <th>Técnico</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            if (datosSimulados.mantenimiento.length === 0) {
+                html += `<tr><td colspan="8" style="text-align: center;">No hay mantenimientos registrados</td></tr>`;
+            } else {
+                datosSimulados.mantenimiento.forEach(mant => {
+                    html += `
+                        <tr>
+                            <td>${mant.id_mantenimiento}</td>
+                            <td><code>${mant.chasis_auto}</code></td>
+                            <td>${mant.fecha_mantenimiento.split('-').reverse().join('/')}</td>
+                            <td>${mant.tipo}</td>
+                            <td>${mant.duracion_horas} hrs</td>
+                            <td>$${mant.costo_estimado ? mant.costo_estimado.toLocaleString() : '0'}</td>
+                            <td>${mant.tecnico_responsable}</td>
+                            <td class="actions-cell">
+                                <button class="btn btn-edit" onclick="editarMantenimiento(${mant.id_mantenimiento})">Editar</button>
+                                <button class="btn btn-delete" onclick="eliminarMantenimiento(${mant.id_mantenimiento})">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            html += `</tbody></table>`;
+            document.getElementById('tablaMantenimiento').innerHTML = html;
+            document.getElementById('countMantenimiento').textContent = `${datosSimulados.mantenimiento.length} registros`;
+        }
+
+        function cargarSelectAutos() {
+            const selectMantenimiento = document.getElementById('chasis_auto_mantenimiento');
+            const selectParticipacion = document.getElementById('auto_participacion');
+            
+            if (selectMantenimiento) {
+                selectMantenimiento.innerHTML = '<option value="">Seleccione un auto</option>';
+                datosSimulados.autos.forEach(auto => {
+                    const option = document.createElement('option');
+                    option.value = auto.chasis_auto;
+                    option.textContent = `${auto.chasis_auto} - ${auto.modelo}`;
+                    selectMantenimiento.appendChild(option);
+                });
+            }
+            
+            if (selectParticipacion) {
+                selectParticipacion.innerHTML = '<option value="">Seleccione un auto</option>';
+                datosSimulados.autos.forEach(auto => {
+                    const option = document.createElement('option');
+                    option.value = auto.chasis_auto;
+                    option.textContent = `${auto.chasis_auto} - ${auto.modelo}`;
+                    selectParticipacion.appendChild(option);
+                });
+            }
+        }
+
+        function editarMantenimiento(id) {
+            const mantenimiento = datosSimulados.mantenimiento.find(m => m.id_mantenimiento === id);
+            if (mantenimiento) {
+                document.getElementById('id_mantenimiento').value = mantenimiento.id_mantenimiento;
+                document.getElementById('chasis_auto_mantenimiento').value = mantenimiento.chasis_auto;
+                document.getElementById('fecha_mantenimiento').value = mantenimiento.fecha_mantenimiento;
+                document.getElementById('tipo_mantenimiento').value = mantenimiento.tipo;
+                document.getElementById('tecnico_responsable').value = mantenimiento.tecnico_responsable;
+                
+                document.getElementById('tituloFormMantenimiento').textContent = 'Editar Mantenimiento';
+                document.getElementById('btnGuardarMantenimiento').textContent = 'Actualizar Mantenimiento';
+                document.getElementById('btnCancelarMantenimiento').style.display = 'inline-block';
+                editId = id;
+            }
+        }
+
+        function cancelarEdicionMantenimiento() {
+            resetForm('formMantenimiento');
+        }
+
+        function guardarMantenimiento(event) {
+            event.preventDefault();
+            
+            const idMantenimiento = document.getElementById('id_mantenimiento').value;
+            const chasis = document.getElementById('chasis_auto_mantenimiento').value;
+            const fecha = document.getElementById('fecha_mantenimiento').value;
+            const tipo = document.getElementById('tipo_mantenimiento').value;
+            const tecnico = document.getElementById('tecnico_responsable').value;
+            
+            if (!chasis || !fecha || !tipo || !tecnico) {
+                mostrarAlerta('mantenimiento', 'Por favor complete todos los campos obligatorios', 'error');
+                return;
+            }
+            
+            if (idMantenimiento) {
+                // Actualizar
+                const index = datosSimulados.mantenimiento.findIndex(m => m.id_mantenimiento === parseInt(idMantenimiento));
+                if (index !== -1) {
+                    datosSimulados.mantenimiento[index] = {
+                        ...datosSimulados.mantenimiento[index],
+                        chasis_auto: chasis,
+                        fecha_mantenimiento: fecha,
+                        tipo: tipo,
+                        tecnico_responsable: tecnico
+                    };
+                    mostrarAlerta('mantenimiento', 'Mantenimiento actualizado correctamente', 'success');
+                }
+            } else {
+                // Insertar nuevo
+                const nuevoId = datosSimulados.mantenimiento.length > 0 ? 
+                    Math.max(...datosSimulados.mantenimiento.map(m => m.id_mantenimiento)) + 1 : 1;
+                
+                datosSimulados.mantenimiento.push({
+                    id_mantenimiento: nuevoId,
+                    chasis_auto: chasis,
+                    fecha_mantenimiento: fecha,
+                    tipo: tipo,
+                    descripcion: '',
+                    duracion_horas: 0,
+                    costo_estimado: 0,
+                    tecnico_responsable: tecnico
+                });
+                mostrarAlerta('mantenimiento', 'Mantenimiento agregado correctamente', 'success');
+            }
+            
+            setTimeout(() => {
+                cargarMantenimiento();
+                resetForm('formMantenimiento');
+            }, 1000);
+        }
+
+        function eliminarMantenimiento(id) {
+            if (confirm('¿Estás seguro de eliminar este mantenimiento?')) {
+                const index = datosSimulados.mantenimiento.findIndex(m => m.id_mantenimiento === id);
+                if (index !== -1) {
+                    datosSimulados.mantenimiento.splice(index, 1);
+                    mostrarAlerta('mantenimiento', 'Mantenimiento eliminado correctamente', 'success');
+                    setTimeout(() => cargarMantenimiento(), 500);
+                }
+            }
+        }
+
+        function filtrarMantenimiento() {
+            const searchTerm = document.getElementById('searchMantenimiento').value.toLowerCase();
+            const tipoFilter = document.getElementById('filterTipoMantenimiento').value;
+            
+            const filtered = datosSimulados.mantenimiento.filter(mant => {
+                const matchesSearch = mant.chasis_auto.toLowerCase().includes(searchTerm) ||
+                                    mant.tecnico_responsable.toLowerCase().includes(searchTerm);
+                const matchesType = !tipoFilter || mant.tipo === tipoFilter;
+                return matchesSearch && matchesType;
+            });
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Chasis</th>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Duración</th>
+                            <th>Costo</th>
+                            <th>Técnico</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            if (filtered.length === 0) {
+                html += `<tr><td colspan="8" style="text-align: center;">No se encontraron mantenimientos</td></tr>`;
+            } else {
+                filtered.forEach(mant => {
+                    html += `
+                        <tr>
+                            <td>${mant.id_mantenimiento}</td>
+                            <td><code>${mant.chasis_auto}</code></td>
+                            <td>${mant.fecha_mantenimiento.split('-').reverse().join('/')}</td>
+                            <td>${mant.tipo}</td>
+                            <td>${mant.duracion_horas} hrs</td>
+                            <td>$${mant.costo_estimado ? mant.costo_estimado.toLocaleString() : '0'}</td>
+                            <td>${mant.tecnico_responsable}</td>
+                            <td class="actions-cell">
+                                <button class="btn btn-edit" onclick="editarMantenimiento(${mant.id_mantenimiento})">Editar</button>
+                                <button class="btn btn-delete" onclick="eliminarMantenimiento(${mant.id_mantenimiento})">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            html += `</tbody></table>`;
+            document.getElementById('tablaMantenimiento').innerHTML = html;
+            document.getElementById('countMantenimiento').textContent = `${filtered.length} registros`;
+        }
+
+        // ========== FUNCIONES PARA CIRCUITOS ==========
+        function cargarCircuitos() {
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>País</th>
+                            <th>Longitud</th>
+                            <th>Curvas</th>
+                            <th>Tipo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            if (datosSimulados.circuitos.length === 0) {
+                html += `<tr><td colspan="7" style="text-align: center;">No hay circuitos registrados</td></tr>`;
+            } else {
+                datosSimulados.circuitos.forEach(circuito => {
+                    html += `
+                        <tr>
+                            <td>${circuito.id_circuito}</td>
+                            <td><strong>${circuito.nombre}</strong></td>
+                            <td>${circuito.pais}</td>
+                            <td>${circuito.longitud_km} km</td>
+                            <td>${circuito.numero_curvas}</td>
+                            <td>${circuito.tipo_circuito}</td>
+                            <td class="actions-cell">
+                                <button class="btn btn-edit" onclick="editarCircuito(${circuito.id_circuito})">Editar</button>
+                                <button class="btn btn-delete" onclick="eliminarCircuito(${circuito.id_circuito})">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            html += `</tbody></table>`;
+            document.getElementById('tablaCircuitos').innerHTML = html;
+            document.getElementById('countCircuitos').textContent = `${datosSimulados.circuitos.length} registros`;
+        }
+
+        function editarCircuito(id) {
+            const circuito = datosSimulados.circuitos.find(c => c.id_circuito === id);
+            if (circuito) {
+                document.getElementById('id_circuito').value = circuito.id_circuito;
+                document.getElementById('nombre_circuito').value = circuito.nombre;
+                document.getElementById('pais_circuito').value = circuito.pais;
+                document.getElementById('longitud_km').value = circuito.longitud_km;
+                document.getElementById('numero_curvas').value = circuito.numero_curvas;
+                
+                document.getElementById('tituloFormCircuito').textContent = 'Editar Circuito';
+                document.getElementById('btnGuardarCircuito').textContent = 'Actualizar Circuito';
+                document.getElementById('btnCancelarCircuito').style.display = 'inline-block';
+                editId = id;
+            }
+        }
+
+        function cancelarEdicionCircuito() {
+            resetForm('formCircuito');
+        }
+
+        function guardarCircuito(event) {
+            event.preventDefault();
+            
+            const idCircuito = document.getElementById('id_circuito').value;
+            const nombre = document.getElementById('nombre_circuito').value;
+            const pais = document.getElementById('pais_circuito').value;
+            const longitud = document.getElementById('longitud_km').value;
+            const curvas = document.getElementById('numero_curvas').value;
+            
+            if (!nombre || !pais || !longitud || !curvas) {
+                mostrarAlerta('circuitos', 'Por favor complete todos los campos obligatorios', 'error');
+                return;
+            }
+            
+            if (idCircuito) {
+                // Actualizar
+                const index = datosSimulados.circuitos.findIndex(c => c.id_circuito === parseInt(idCircuito));
+                if (index !== -1) {
+                    datosSimulados.circuitos[index] = {
+                        ...datosSimulados.circuitos[index],
+                        nombre,
+                        pais,
+                        longitud_km: parseFloat(longitud),
+                        numero_curvas: parseInt(curvas)
+                    };
+                    mostrarAlerta('circuitos', 'Circuito actualizado correctamente', 'success');
+                }
+            } else {
+                // Insertar nuevo
+                const nuevoId = datosSimulados.circuitos.length > 0 ? 
+                    Math.max(...datosSimulados.circuitos.map(c => c.id_circuito)) + 1 : 1;
+                
+                datosSimulados.circuitos.push({
+                    id_circuito: nuevoId,
+                    nombre,
+                    pais,
+                    longitud_km: parseFloat(longitud),
+                    record_vuelta: null,
+                    tipo_circuito: 'Permanente',
+                    numero_curvas: parseInt(curvas),
+                    capacidad_espectadores: null
+                });
+                mostrarAlerta('circuitos', 'Circuito agregado correctamente', 'success');
+            }
+            
+            setTimeout(() => {
+                cargarCircuitos();
+                resetForm('formCircuito');
+            }, 1000);
+        }
+
+        function eliminarCircuito(id) {
+            if (confirm('¿Estás seguro de eliminar este circuito?')) {
+                const index = datosSimulados.circuitos.findIndex(c => c.id_circuito === id);
+                if (index !== -1) {
+                    datosSimulados.circuitos.splice(index, 1);
+                    mostrarAlerta('circuitos', 'Circuito eliminado correctamente', 'success');
+                    setTimeout(() => cargarCircuitos(), 500);
+                }
+            }
+        }
+
+        function filtrarCircuitos() {
+            const searchTerm = document.getElementById('searchCircuito').value.toLowerCase();
+            
+            const filtered = datosSimulados.circuitos.filter(circuito => {
+                return circuito.nombre.toLowerCase().includes(searchTerm) ||
+                       circuito.pais.toLowerCase().includes(searchTerm);
+            });
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>País</th>
+                            <th>Longitud</th>
+                            <th>Curvas</th>
+                            <th>Tipo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            if (filtered.length === 0) {
+                html += `<tr><td colspan="7" style="text-align: center;">No se encontraron circuitos</td></tr>`;
+            } else {
+                filtered.forEach(circuito => {
+                    html += `
+                        <tr>
+                            <td>${circuito.id_circuito}</td>
+                            <td><strong>${circuito.nombre}</strong></td>
+                            <td>${circuito.pais}</td>
+                            <td>${circuito.longitud_km} km</td>
+                            <td>${circuito.numero_curvas}</td>
+                            <td>${circuito.tipo_circuito}</td>
+                            <td class="actions-cell">
+                                <button class="btn btn-edit" onclick="editarCircuito(${circuito.id_circuito})">Editar</button>
+                                <button class="btn btn-delete" onclick="eliminarCircuito(${circuito.id_circuito})">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            html += `</tbody></table>`;
+            document.getElementById('tablaCircuitos').innerHTML = html;
+            document.getElementById('countCircuitos').textContent = `${filtered.length} registros`;
+        }
+
+        // ========== FUNCIONES PARA CARRERAS ==========
+        function cargarCarreras() {
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Fecha</th>
+                            <th>Temporada</th>
+                            <th>Vueltas</th>
+                            <th>Clima</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            if (datosSimulados.carreras.length === 0) {
+                html += `<tr><td colspan="7" style="text-align: center;">No hay carreras registradas</td></tr>`;
+            } else {
+                datosSimulados.carreras.forEach(carrera => {
+                    html += `
+                        <tr>
+                            <td>${carrera.id_carrera}</td>
+                            <td><strong>${carrera.nombre}</strong></td>
+                            <td>${carrera.fecha.split('-').reverse().join('/')}</td>
+                            <td>${carrera.temporada}</td>
+                            <td>${carrera.vueltas_planificadas}</td>
+                            <td>${carrera.condiciones_climaticas}</td>
+                            <td class="actions-cell">
+                                <button class="btn btn-edit" onclick="editarCarrera(${carrera.id_carrera})">Editar</button>
+                                <button class="btn btn-delete" onclick="eliminarCarrera(${carrera.id_carrera})">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            html += `</tbody></table>`;
+            document.getElementById('tablaCarreras').innerHTML = html;
+            document.getElementById('countCarreras').textContent = `${datosSimulados.carreras.length} registros`;
+        }
+
+        function editarCarrera(id) {
+            const carrera = datosSimulados.carreras.find(c => c.id_carrera === id);
+            if (carrera) {
+                document.getElementById('id_carrera').value = carrera.id_carrera;
+                document.getElementById('nombre_carrera').value = carrera.nombre;
+                document.getElementById('fecha_carrera').value = carrera.fecha;
+                
+                document.getElementById('tituloFormCarrera').textContent = 'Editar Carrera';
+                document.getElementById('btnGuardarCarrera').textContent = 'Actualizar Carrera';
+                document.getElementById('btnCancelarCarrera').style.display = 'inline-block';
+                editId = id;
+            }
+        }
+
+        function cancelarEdicionCarrera() {
+            resetForm('formCarrera');
+        }
+
+        function guardarCarrera(event) {
+            event.preventDefault();
+            
+            const idCarrera = document.getElementById('id_carrera').value;
+            const nombre = document.getElementById('nombre_carrera').value;
+            const fecha = document.getElementById('fecha_carrera').value;
+            
+            if (!nombre || !fecha) {
+                mostrarAlerta('carreras', 'Por favor complete todos los campos obligatorios', 'error');
+                return;
+            }
+            
+            if (idCarrera) {
+                // Actualizar
+                const index = datosSimulados.carreras.findIndex(c => c.id_carrera === parseInt(idCarrera));
+                if (index !== -1) {
+                    datosSimulados.carreras[index] = {
+                        ...datosSimulados.carreras[index],
+                        nombre,
+                        fecha
+                    };
+                    mostrarAlerta('carreras', 'Carrera actualizada correctamente', 'success');
+                }
+            } else {
+                // Insertar nuevo
+                const nuevoId = datosSimulados.carreras.length > 0 ? 
+                    Math.max(...datosSimulados.carreras.map(c => c.id_carrera)) + 1 : 1;
+                
+                datosSimulados.carreras.push({
+                    id_carrera: nuevoId,
+                    id_circuito: 1,
+                    nombre,
+                    fecha,
+                    temporada: 2024,
+                    vueltas_planificadas: 50,
+                    condiciones_climaticas: 'Despejado'
+                });
+                mostrarAlerta('carreras', 'Carrera agregada correctamente', 'success');
+            }
+            
+            setTimeout(() => {
+                cargarCarreras();
+                resetForm('formCarrera');
+            }, 1000);
+        }
+
+        function eliminarCarrera(id) {
+            if (confirm('¿Estás seguro de eliminar esta carrera?')) {
+                const index = datosSimulados.carreras.findIndex(c => c.id_carrera === id);
+                if (index !== -1) {
+                    datosSimulados.carreras.splice(index, 1);
+                    mostrarAlerta('carreras', 'Carrera eliminada correctamente', 'success');
+                    setTimeout(() => cargarCarreras(), 500);
+                }
+            }
+        }
+
+        function filtrarCarreras() {
+            const searchTerm = document.getElementById('searchCarrera').value.toLowerCase();
+            
+            const filtered = datosSimulados.carreras.filter(carrera => {
+                return carrera.nombre.toLowerCase().includes(searchTerm);
+            });
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Fecha</th>
+                            <th>Temporada</th>
+                            <th>Vueltas</th>
+                            <th>Clima</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            if (filtered.length === 0) {
+                html += `<tr><td colspan="7" style="text-align: center;">No se encontraron carreras</td></tr>`;
+            } else {
+                filtered.forEach(carrera => {
+                    html += `
+                        <tr>
+                            <td>${carrera.id_carrera}</td>
+                            <td><strong>${carrera.nombre}</strong></td>
+                            <td>${carrera.fecha.split('-').reverse().join('/')}</td>
+                            <td>${carrera.temporada}</td>
+                            <td>${carrera.vueltas_planificadas}</td>
+                            <td>${carrera.condiciones_climaticas}</td>
+                            <td class="actions-cell">
+                                <button class="btn btn-edit" onclick="editarCarrera(${carrera.id_carrera})">Editar</button>
+                                <button class="btn btn-delete" onclick="eliminarCarrera(${carrera.id_carrera})">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            html += `</tbody></table>`;
+            document.getElementById('tablaCarreras').innerHTML = html;
+            document.getElementById('countCarreras').textContent = `${filtered.length} registros`;
+        }
+
+        // ========== FUNCIONES PARA PARTICIPACIONES ==========
+        function cargarParticipaciones() {
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Piloto</th>
+                            <th>Auto</th>
+                            <th>Posición Salida</th>
+                            <th>Estrategia</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            if (datosSimulados.participaciones.length === 0) {
+                html += `<tr><td colspan="6" style="text-align: center;">No hay participaciones registradas</td></tr>`;
+            } else {
+                datosSimulados.participaciones.forEach(part => {
+                    const piloto = datosSimulados.pilotos.find(p => p.id_piloto === part.id_piloto);
+                    const auto = datosSimulados.autos.find(a => a.chasis_auto === part.chasis_auto);
+                    
+                    html += `
+                        <tr>
+                            <td>${part.id_participacion}</td>
+                            <td><strong>${piloto ? piloto.nombre : 'N/A'}</strong></td>
+                            <td>${auto ? auto.modelo : 'N/A'}</td>
+                            <td>${part.posicion_salida || 'N/A'}</td>
+                            <td>${part.estrategia_neumaticos || 'N/A'}</td>
+                            <td class="actions-cell">
+                                <button class="btn btn-edit" onclick="editarParticipacion(${part.id_participacion})">Editar</button>
+                                <button class="btn btn-delete" onclick="eliminarParticipacion(${part.id_participacion})">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            html += `</tbody></table>`;
+            document.getElementById('tablaParticipaciones').innerHTML = html;
+            document.getElementById('countParticipaciones').textContent = `${datosSimulados.participaciones.length} registros`;
+        }
+
+        function cargarSelectPilotos() {
+            const selectParticipacion = document.getElementById('piloto_participacion');
+            const selectResultado = document.getElementById('piloto_resultado');
+            
+            if (selectParticipacion) {
+                selectParticipacion.innerHTML = '<option value="">Seleccione un piloto</option>';
+                datosSimulados.pilotos.forEach(piloto => {
+                    const option = document.createElement('option');
+                    option.value = piloto.id_piloto;
+                    option.textContent = `${piloto.nombre} (#${piloto.numero_competition || 'N/A'})`;
+                    selectParticipacion.appendChild(option);
+                });
+            }
+            
+            if (selectResultado) {
+                selectResultado.innerHTML = '<option value="">Seleccione un piloto</option>';
+                datosSimulados.pilotos.forEach(piloto => {
+                    const option = document.createElement('option');
+                    option.value = piloto.id_piloto;
+                    option.textContent = `${piloto.nombre} (#${piloto.numero_competition || 'N/A'})`;
+                    selectResultado.appendChild(option);
+                });
+            }
+        }
+
+        function editarParticipacion(id) {
+            const participacion = datosSimulados.participaciones.find(p => p.id_participacion === id);
+            if (participacion) {
+                document.getElementById('id_participacion').value = participacion.id_participacion;
+                document.getElementById('piloto_participacion').value = participacion.id_piloto;
+                document.getElementById('auto_participacion').value = participacion.chasis_auto;
+                
+                document.getElementById('tituloFormParticipacion').textContent = 'Editar Participación';
+                document.getElementById('btnGuardarParticipacion').textContent = 'Actualizar Participación';
+                document.getElementById('btnCancelarParticipacion').style.display = 'inline-block';
+                editId = id;
+            }
+        }
+
+        function cancelarEdicionParticipacion() {
+            resetForm('formParticipacion');
+        }
+
+        function guardarParticipacion(event) {
+            event.preventDefault();
+            
+            const idParticipacion = document.getElementById('id_participacion').value;
+            const piloto = document.getElementById('piloto_participacion').value;
+            const auto = document.getElementById('auto_participacion').value;
+            
+            if (!piloto || !auto) {
+                mostrarAlerta('participaciones', 'Por favor complete todos los campos obligatorios', 'error');
+                return;
+            }
+            
+            if (idParticipacion) {
+                // Actualizar
+                const index = datosSimulados.participaciones.findIndex(p => p.id_participacion === parseInt(idParticipacion));
+                if (index !== -1) {
+                    datosSimulados.participaciones[index] = {
+                        ...datosSimulados.participaciones[index],
+                        id_piloto: parseInt(piloto),
+                        chasis_auto: auto
+                    };
+                    mostrarAlerta('participaciones', 'Participación actualizada correctamente', 'success');
+                }
+            } else {
+                // Insertar nuevo
+                const nuevoId = datosSimulados.participaciones.length > 0 ? 
+                    Math.max(...datosSimulados.participaciones.map(p => p.id_participacion)) + 1 : 1;
+                
+                datosSimulados.participaciones.push({
+                    id_participacion: nuevoId,
+                    id_piloto: parseInt(piloto),
+                    chasis_auto: auto,
+                    id_carrera: 1,
+                    posicion_salida: null,
+                    estrategia_neumaticos: null,
+                    fecha_creacion: new Date().toISOString().split('T')[0]
+                });
+                mostrarAlerta('participaciones', 'Participación agregada correctamente', 'success');
+            }
+            
+            setTimeout(() => {
+                cargarParticipaciones();
+                resetForm('formParticipacion');
+            }, 1000);
+        }
+
+        function eliminarParticipacion(id) {
+            if (confirm('¿Estás seguro de eliminar esta participación?')) {
+                const index = datosSimulados.participaciones.findIndex(p => p.id_participacion === id);
+                if (index !== -1) {
+                    datosSimulados.participaciones.splice(index, 1);
+                    mostrarAlerta('participaciones', 'Participación eliminada correctamente', 'success');
+                    setTimeout(() => cargarParticipaciones(), 500);
+                }
+            }
+        }
+
+        // ========== FUNCIONES PARA RESULTADOS ==========
+        function cargarResultados() {
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Piloto</th>
+                            <th>Posición</th>
+                            <th>Puntos</th>
+                            <th>Sesión</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            if (datosSimulados.resultados.length === 0) {
+                html += `<tr><td colspan="7" style="text-align: center;">No hay resultados registrados</td></tr>`;
+            } else {
+                datosSimulados.resultados.forEach(resultado => {
+                    const piloto = datosSimulados.pilotos.find(p => p.id_piloto === resultado.id_participacion);
+                    const estadoColor = resultado.estado_carrera === 'Completado' ? '#28a745' : 
+                                      resultado.estado_carrera === 'Abandono' ? '#dc3545' : '#ffc107';
+                    
+                    html += `
+                        <tr>
+                            <td>${resultado.id_resultado}</td>
+                            <td><strong>${piloto ? piloto.nombre : 'N/A'}</strong></td>
+                            <td>${resultado.posicion_final}</td>
+                            <td>${resultado.puntos_obtenidos}</td>
+                            <td>${resultado.tipo_sesion}</td>
+                            <td style="color: ${estadoColor}">${resultado.estado_carrera}</td>
+                            <td class="actions-cell">
+                                <button class="btn btn-edit" onclick="editarResultado(${resultado.id_resultado})">Editar</button>
+                                <button class="btn btn-delete" onclick="eliminarResultado(${resultado.id_resultado})">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            html += `</tbody></table>`;
+            document.getElementById('tablaResultados').innerHTML = html;
+            document.getElementById('countResultados').textContent = `${datosSimulados.resultados.length} registros`;
+        }
+
+        function editarResultado(id) {
+            const resultado = datosSimulados.resultados.find(r => r.id_resultado === id);
+            if (resultado) {
+                document.getElementById('id_resultado').value = resultado.id_resultado;
+                document.getElementById('piloto_resultado').value = resultado.id_participacion;
+                document.getElementById('posicion_resultado').value = resultado.posicion_final;
+                
+                document.getElementById('tituloFormResultado').textContent = 'Editar Resultado';
+                document.getElementById('btnGuardarResultado').textContent = 'Actualizar Resultado';
+                document.getElementById('btnCancelarResultado').style.display = 'inline-block';
+                editId = id;
+            }
+        }
+
+        function cancelarEdicionResultado() {
+            resetForm('formResultado');
+        }
+
+        function guardarResultado(event) {
+            event.preventDefault();
+            
+            const idResultado = document.getElementById('id_resultado').value;
+            const piloto = document.getElementById('piloto_resultado').value;
+            const posicion = document.getElementById('posicion_resultado').value;
+            
+            if (!piloto || !posicion) {
+                mostrarAlerta('resultados', 'Por favor complete todos los campos obligatorios', 'error');
+                return;
+            }
+            
+            if (idResultado) {
+                // Actualizar
+                const index = datosSimulados.resultados.findIndex(r => r.id_resultado === parseInt(idResultado));
+                if (index !== -1) {
+                    datosSimulados.resultados[index] = {
+                        ...datosSimulados.resultados[index],
+                        id_participacion: parseInt(piloto),
+                        posicion_final: parseInt(posicion)
+                    };
+                    mostrarAlerta('resultados', 'Resultado actualizado correctamente', 'success');
+                }
+            } else {
+                // Insertar nuevo
+                const nuevoId = datosSimulados.resultados.length > 0 ? 
+                    Math.max(...datosSimulados.resultados.map(r => r.id_resultado)) + 1 : 1;
+                
+                datosSimulados.resultados.push({
+                    id_resultado: nuevoId,
+                    id_participacion: parseInt(piloto),
+                    tipo_sesion: "Carrera",
+                    posicion_final: parseInt(posicion),
+                    puntos_obtenidos: calcularPuntos(parseInt(posicion)),
+                    tiempo_total: null,
+                    vueltas_completadas: 0,
+                    estado_carrera: "Completado",
+                    motivo_abandono: null,
+                    vuelta_rapida: null
+                });
+                mostrarAlerta('resultados', 'Resultado agregado correctamente', 'success');
+            }
+            
+            setTimeout(() => {
+                cargarResultados();
+                resetForm('formResultado');
+            }, 1000);
+        }
+
+        function calcularPuntos(posicion) {
+            const puntosSistema = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
+            return posicion <= puntosSistema.length ? puntosSistema[posicion - 1] : 0;
+        }
+
+        function eliminarResultado(id) {
+            if (confirm('¿Estás seguro de eliminar este resultado?')) {
+                const index = datosSimulados.resultados.findIndex(r => r.id_resultado === id);
+                if (index !== -1) {
+                    datosSimulados.resultados.splice(index, 1);
+                    mostrarAlerta('resultados', 'Resultado eliminado correctamente', 'success');
+                    setTimeout(() => cargarResultados(), 500);
+                }
+            }
+        }
+
+        // ========== INICIALIZACIÓN ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar autenticación
+            if (!verificarAutenticacion()) return;
+            
+            // Actualizar interfaz de usuario
+            actualizarInterfazUsuario();
+            
+            // Configurar botón de logout
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // Cargar datos iniciales
+            cargarEquipo();
+            cargarSelectAutos();
+            cargarSelectPilotos();
+            
+            // Mostrar mensaje de bienvenida
+            setTimeout(() => {
+                mostrarAlerta('equipo', '✅ Sistema cargado correctamente. Usando datos simulados.', 'success');
+            }, 500);
+        });
+
+        // ========== PROTECCIÓN DE NAVEGACIÓN ==========
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+                if (localStorage.getItem('userAuthenticated') !== 'true') {
+                    window.location.href = 'login.html';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
